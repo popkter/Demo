@@ -14,18 +14,22 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,11 +58,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+@kotlin.OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubCameraSceneView(
-    index: Int,
     subSceneItem: SubSceneItem,
-    listState: LazyListState,
     viewModel: MainViewModel
 ) {
     val TAG = "SubCameraSceneView"
@@ -69,39 +72,25 @@ fun SubCameraSceneView(
     var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
     var lensFacing by remember { mutableIntStateOf(CameraSelector.LENS_FACING_FRONT) }
     val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(subSceneItem) {
-        snapshotFlow {
-            listState.firstVisibleItemIndex == index
-        }.collect { visible ->
-            isVisible = visible
-        }
-    }
 
     LaunchedEffect(takePhotoAction) {
-        if (takePhotoAction && isVisible) {
+        if (takePhotoAction) {
             viewModel.stopTakePhoto()
             capturePhoto(context, lensFacing, cameraExecutor) { bitmap ->
                 capturedImage = bitmap
                 viewModel.updateBitmap(bitmap)
                 coroutineScope.launch {
                     previewView?.let {
-                        startCamera(context, lensFacing, it)
+                        startCamera(context, lensFacing, it, 0)
                     }
                 }
             }
         }
     }
 
-    // 初始化 CameraX
-    LaunchedEffect(previewView) {
-        previewView?.let {
-            startCamera(context, lensFacing, it)
-        }
-    }
-
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         // 相机预览视图
         AndroidView(
             factory = { ctx ->
@@ -110,11 +99,14 @@ fun SubCameraSceneView(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
-                }.also { previewView = it }
+                }.also {
+                    previewView = it;
+                    startCamera(context, lensFacing, it, 1)
+                }
             },
             modifier = Modifier
-                .width(894.dp)
-                .height(571.dp)
+                .fillMaxWidth()
+                .weight(10F)
                 .clip(RoundedCornerShape(20.dp))
                 .pointerInput(Unit) {
                     detectTapGestures(
@@ -126,7 +118,7 @@ fun SubCameraSceneView(
                             }
                             coroutineScope.launch {
                                 previewView?.let {
-                                    startCamera(context, lensFacing, it)
+                                    startCamera(context, lensFacing, it, 2)
                                 }
                             }
                         }
@@ -136,8 +128,9 @@ fun SubCameraSceneView(
 
         LazyRow(
             modifier = Modifier
-                .padding(top = 30.dp)
-                .width(894.dp),
+                .padding(vertical = 15.dp)
+                .fillMaxWidth()
+                .weight(1.2F),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(subSceneItem.hints) {
@@ -152,7 +145,7 @@ fun SubCameraSceneView(
                                 viewModel.loadResult(it, bitmap)
                                 coroutineScope.launch {
                                     previewView?.let {
-                                        startCamera(context, lensFacing, it)
+                                        startCamera(context, lensFacing, it, 3)
                                     }
                                 }
                             }
@@ -165,8 +158,7 @@ fun SubCameraSceneView(
                         modifier = Modifier
                             .padding(horizontal = 15.dp),
                         text = it.hint,
-                        color = Color.White,
-                        fontSize = 24.sp
+                        color = Color.White
                     )
                 }
 
@@ -188,7 +180,8 @@ fun SubCameraSceneView(
 }
 
 @OptIn(ExperimentalCamera2Interop::class)
-fun startCamera(context: Context, lensFacing: Int, previewView: PreviewView) {
+fun startCamera(context: Context, lensFacing: Int, previewView: PreviewView,flag:Int) {
+    Log.e("SubCameraSceneView", "startCamera: $flag")
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
     val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
     val cameraProvider = cameraProviderFuture.get()
@@ -197,6 +190,7 @@ fun startCamera(context: Context, lensFacing: Int, previewView: PreviewView) {
     }
     cameraProviderFuture.addListener({
         try {
+            Log.e("SubCameraSceneView", "addListener: $flag")
             // 绑定相机生命周期
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(

@@ -1,0 +1,193 @@
+{
+  "seat_info": [
+    { "rect": [0.6, 0.3, 1, 1], "name": "Driver" },
+    { "rect": [0, 0.3, 0.4, 1], "name": "CoDriver" },
+    { "rect": [0.5, 0, 0.7, 0.6], "name": "LeftRear" },
+    { "rect": [0.4, 0, 0.6, 0.6], "name": "MidRear" },
+    { "rect": [0.3, 0, 0.5, 0.6], "name": "RightRear" }
+  ],
+  "plugin": {
+    "whole_body_post_filter": {
+      "seat_calibration": {
+        "enabled": true
+      },
+      "human_body_predict": {
+        "enabled": true,
+        "human_body_score_thr": 0.6
+      }
+    },
+    "wb_face_track_post_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [-1, -1, -1, -1, -1],
+        "bright_dark_occlusion_ratio_thr": [-1, -1, -1]
+      }
+    },
+    "face_attr_pre_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [45, 35, -1, -1, -1],
+        "face_size_thr": 64,
+        "track_score_thr": -1
+      },
+      "loose_face_quality":{
+        "enabled": false,
+        "yaw_pitch_bright_dark_blur_thr": [-1, -1, -1, -1, -1],
+        "face_size_thr": 16,
+        "track_score_thr": -1
+      }
+    },
+    "eye_pre_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [90, 90, -1, -1, -1]
+      }
+    },
+    "emotion_mouth_pre_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [90, 90, -1, -1, -1]
+      }
+    },
+    "emotion_mouth_post_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [60, 50, -1, -1, -1],
+        "face_size_thr": 64,
+        "track_score_thr": -1
+      },
+      "childcry_face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [60, 50, -1, -1, -1],
+        "face_size_thr": 64,
+        "track_score_thr": -1
+      }
+    },
+    "face_id_pre_filter": {
+      "face_quality": {
+        "register_face_quality": {
+          "enabled": true,
+          "yaw_pitch_bright_dark_blur_thr": [30, 35, 200, 55, -1],
+          "bright_dark_occlusion_ratio_thr": [0.5, 0.5, -1],
+          "face_size_thr": 100,
+          "track_score_thr": 0.8
+        },
+        "login_face_quality": {
+          "enabled": true,
+          "yaw_pitch_bright_dark_blur_thr": [65, 50, 230, 25, -1],
+          "bright_dark_occlusion_ratio_thr": [0.5, 0.5, -1],
+          "track_score_thr": 0.8,
+          "face_size_thr": 100
+        }
+      },
+      "faceid_seat_ids": {
+        "enable": true,
+        "register_seat_ids": ["Driver", "CoDriver"],
+        "login_seat_ids": [
+          "Driver",
+          "CoDriver",
+          "RightRear",
+          "MidRear",
+          "LeftRear"
+        ]
+      }
+    },
+    "wb_gesture_pre_filter": {
+      "filter_by_person_hands": false,
+      "filter_by_person_hands_cfg": [
+        {
+          "seat_id": "Driver",
+          "hand_tag": "right"
+        },
+        {
+          "seat_id": "CoDriver",
+          "hand_tag": "left"
+        }
+      ],
+      "filter_by_invalid_hand": false
+    },
+    "wb_gesture_post_filter": {
+      "filter_to_best_gesture": false,
+      "filter_bad_score": {
+        "enabled": true,
+        "cls_score_thr": 0.0
+      },
+      "filter_ldmk_visit": false,
+      "filter_by_history": false,
+      "history_num": 6,
+      "standard_var": 4.0,
+      "filter_by_smooth": true,
+      "smooth_len": 11,
+      "smooth_cnt_ratio": 0.7,
+      "filter_by_roi": false,
+      "filter_by_angle": false,
+      "roi": [430, 300, 1450, 1080]
+    },
+    "gesture_dynamic_pre_filter": {
+      "filter_to_best_gesture": false,
+      "filter_bad_score": {
+        "enabled": true,
+        "cls_score_thr": 0.0
+      },
+      "filter_ldmk_visit": false
+    },
+    "gesture_dynamic_post_filter": {
+      "filter_to_best_gesture": false,
+      "filter_bad_score": {
+        "enabled": true,
+        "cls_score_thr": 0.0
+      },
+      "filter_ldmk_visit": false
+    },
+    "action_pre_filter": {
+      "filter_seats": ["Driver", "CoDriver"],
+      "min_face_sz": 15000
+    },
+    "behavior_det_pre_filter": {},
+    "gaze_pre_filter": {
+      "seat_bind": {
+        "front_back_thr": [0.4, 0.65],
+        "front_left_right_thr": 0.5
+      }
+    },
+    "head3d_pre_filter": {
+      "seat_bind": {
+        "front_back_thr": [0.4, 0.65],
+        "front_left_right_thr": 0.5
+      }
+    },
+    "safety_seat_post_filter": {
+      "enabled": false,
+      "bind_thrs_config": {
+        "Driver": 0.65,
+        "CoDriver": 0.65,
+        "LeftRear": 0.65,
+        "MidRear": 0.65,
+        "RightRear": 0.65
+      }
+    },
+    "pet_object_post_filter": {
+      "enabled": false,
+      "iou_thr": 0.6,
+      "stop_pet_object_area": [[356, 550, 491, 623]],
+      "size_filter":[
+        {
+          "class": ["Pet", "Wallet", "Phone"],
+          "width_thr":0.5,
+          "height_thr": 0.5,
+          "width_op":"gt",
+          "height_op": "gt",
+          "relation":"and"
+        }
+      ]
+    },
+    "eye_pre_filter": {
+      "face_quality": {
+        "enabled": true,
+        "yaw_pitch_bright_dark_blur_thr": [90, 90, -1, -1, -1],
+        "disable_rect_outbound": true
+      },
+      "filter_id_if_eye_ft_reg": true
+    }
+  }
+}

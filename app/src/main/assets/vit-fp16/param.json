@@ -1,0 +1,33 @@
+{
+    "EngineType": "QNN",
+    "Executor": {
+        "input_name": ["pixel_values"]
+    },
+    "PreProcess": {
+        "CvEngine": "FASTCV",
+        "OpList": [
+            "ColorCvt",
+            "Crop",
+            "Resize",
+            "PixelNorm"
+        ],
+        "Params": {
+            "img_format": "bgr",
+            "scale": [
+                448,
+                448
+            ],
+            "img_mean": [
+                123.675,
+                116.28,
+                103.53
+            ],
+            "img_std": [
+                58.395,
+                57.12,
+                57.375
+            ]
+        }
+    }
+}
+

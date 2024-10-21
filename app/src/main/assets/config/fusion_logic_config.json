@@ -1,0 +1,452 @@
+{
+    "fusion_logic": {
+        "emotion": {
+            "decision_strategy": 2,
+            "smooth": {
+                "enabled": true,
+                "smooth_window_size": 3,
+                "uniform_reuse_size": 6,
+                "uniform_window_size": 6
+            },
+            "childcry_smooth": {
+              "enabled": true,
+              "smooth_window_size": 3,
+              "uniform_reuse_size": 2,
+              "uniform_window_size": 2
+            }
+        },
+        "face_attr": {
+            "smooth": {
+                "enabled": true,
+                "smooth_size": 20,
+                "attr_age_weight_alpha": -1
+            }
+        },
+        "sleep": {
+          "eye_open_override": {
+            "eye_open_thr": 0.85,
+            "eye_valid_thr": 0.5,
+            "eye_key_point_thr": 20,
+            "eye_squint_thr": 0.85
+          },
+          "eye_common_override": {
+            "yaw_thr": [-35, 35]
+          },
+          "smooth": {
+            "enabled": true,
+            "smooth_window_size": 3
+          },
+          "eye_continuous_close_judge": {
+            "eye_close_smooth_thr": 0.3,
+            "eye_close_thr": 20,
+            "frame_no_face_heavy_reset": 4
+          }
+        },
+        "danger_action": {
+            "action": {
+                "normal_hand_phone_iou_thr": 0.2,
+                "normal_hand_face_distance_n": 1.5,
+                "conditions_rel": "or",
+                "ghost_thr": -1,
+                "no_hand_act": "inhibit",
+                "uniform_smooth": {
+                  "enabled": true,
+                  "uniform_smooth_size": 2
+                },
+                "vote_smooth": {
+                  "enabled": true,
+                  "vote_smooth_size": 2
+                },
+                "phone_not_on_face": {
+                  "enabled": false,
+                  "human_center_y_ratio": 0.5
+                }
+            },
+            "smoke": {
+                "smooth": {
+                    "enabled": true,
+                    "smooth_window_size": 3
+                }
+            }
+        },
+        "child": {
+            "smooth": {
+                "enabled": true,
+                "smooth_window_size": 5
+            },
+            "uncertain_score": [0.2, 0.5],
+            "seq_logic_smooth": {
+                "face_enabled": false,
+                "face_max_list_size": 20,
+                "min_max_align_score": 0.5,
+                "is_face_id_first": false,
+                "face_list_update":{
+                    "enabled":false,
+                    "history_list_size":10,
+                    "thresh_score":0.5
+                },
+                "body_enabled": false,
+                "body_max_list_size": 5,
+                "body_list_update": {
+                    "enabled": false,
+                    "history_list_size": 10,
+                    "thresh_score": 0.5
+                }
+            },
+            "skeleton_len": {
+                "enabled": true,
+                "##override_p_for_ske_len": 1.0,
+                "key_point_score_thr": 0.0,
+                "used_neck_point": false,
+                "##seat_bind": {
+                    "front_back_thr": [0.5, 0.65],
+                    "front_left_right_thr": 0.5,
+                    "back_left_center_right_thr": [0.4, 0.6]
+                },
+                "key_points_index": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14],
+                "camera_intrinsics": [[ 2861.646, 0.0, 964.676], [0.0, 2937.496, 241.454], [0.0, 0.0, 1.0]],
+                "camera_distortion": [-1.498376, 1.033844, 0.179463, 0.021337, 0.741251],
+                "seat_middle_point": {
+                    "CoDriver": [-534.3184852354204, 1038.0047584745648, 3181],
+                    "Driver": [489.4632823207342, 1040.1705486577682, 3181],
+                    "LeftRear": [-376.2047758527785, 628.4308751399151, 4667], 
+                    "MidRear": [-23.934788579719573, 628.4308751399151, 4667],
+                    "RightRear": [302.2411255620016, 628.4308751399151, 4667]
+                },
+                "ratio_shoulder_height_to_shoulder_width": 1.572577702,
+                "ratio_shoulder_width_to_iliocristale_width": 1.306906603,
+                "skeleton_len_thr": {
+                    "CoDriver":{"shoulder_width":[340,400], "iliac_crest":[220,250], "shoulder_height":[400,460], 
+                            "sk_7_13":[400,500], "sk_6_12":[400,520], "sk_7_12":[500,600], "sk_6_13":[500,600]},
+                    "Driver":{"shoulder_width":[300,400], "iliac_crest":[200,300], "shoulder_height":[400,500],
+                            "sk_7_13":[400,500], "sk_6_12":[420,520], "sk_7_12":[500,600], "sk_6_13":[500,600]},
+                    "LeftRear":{"shoulder_width":[240,280], "iliac_crest":[175,200], "shoulder_height":[300,400],
+                            "sk_7_13":[300,350], "sk_6_12":[320,370], "sk_7_12":[420,475], "sk_6_13":[400,440]},
+                    "MidRear":{"shoulder_width":[250,280], "iliac_crest":[170,200], "shoulder_height":[300,400], 
+                            "sk_7_13":[300,350], "sk_6_12":[320,370], "sk_7_12":[420,475], "sk_6_13":[400,440]},
+                    "RightRear":{"shoulder_width":[250,280], "iliac_crest":[170,200], "shoulder_height":[300,400], 
+                            "sk_7_13":[300,350], "sk_6_12":[320,370], "sk_7_12":[400,450], "sk_6_13":[400,440]}
+                }
+            },
+            "##algo_strategy": "base",
+            "correct_algo_params": {
+                "remapping_scale" : 8,
+                "female_thrd_res": 0.01,
+                "##use_confidence_remapping": true,
+                "##child_high_confidence_thr": 0.57,
+                "##adult_high_confidence_thr": 0.38,
+                "##uncertain_remapping_correct": {
+                    "kpt_num_thr_uncertain": 5,
+                    "diff_thr_skl_sk_uncertain": 0.6,
+                    "diff_thr_wbc_sk_uncertain": 0.6,
+                    "diff_thr_wbc_skl_uncertain": 0.6,
+                    "diff_thr_skl_sk_wbc_uncertain": 0.6,
+                    "yaw_thr_uncertain": 70,
+                    "occ_thr_uncertain": 0.3,
+                    "align_thr_uncertain": 0.01,
+                    "body_high_thr_uncertain": 0.85,
+                    "body_low_thr_uncertain": 0.4,
+                    "close_face_area_size_thr": 210000,
+                    "bodybone_ratio_thr_in_uncertain": 0.7,
+                    "gesture_invalid_thr": 0.5
+                },
+                "correct_child_age": {
+                    "age_thrd": 8.2,
+                    "align_thrd": 0.08,
+                    "age_alpha": 0.48,
+                    "age_gamma": 1.16,
+                    "age_scale": 3,
+                    "age_merge_bata": 0.33
+                },
+                "correct_body_score": {
+                    "kps_merge_beta": 0.41,
+                    "child_pre_merge_beta": 0.59,
+                    "##wholebody_quality_thr_uncertain": 0.4,
+                    "##torso_quality_thr_uncertain": 0.5
+                },
+                "high_quality_face": {
+                    "align_score_thrd": 0.30,
+                    "occlusion_thrd": 0.29,
+                    "##child_feature_norm_thrd": 12.5,
+                    "##child_feature_norm_higher_thrd": 14.5,
+                    "##entropy_thrd": 0.6
+                },
+                "is_child_thr": {
+                    "age_merge_score_thrd": 0.69,
+                    "kps_merge_thrd": 0.73,
+                    "merge_score_thrd": 0.59,
+                    "kps_merge_score_sure_child_thrd": 0.86,
+                    "kps_merge_score_sure_adult_thrd": 0.16,
+                    "##kps_merge_score_sure_child_thrd_back": 0.8,
+                    "##kps_merge_score_sure_adult_thrd_back": -1,
+                    "##face_sure_adult_thrd": 0.27,
+                    "##face_sure_child_thrd": -1
+                },
+                "is_using_seat_close": {
+                    "enabled": false,
+                    "child_seat_close_iou": 0.3
+                },
+                "##kpt_body_status_thr": {
+                    "kpt_wholebody_quality_thr": 0.5,
+                    "sideway_ratio_thr": 0.3,
+                    "area_code": "cn"
+                },
+                "##front_one_seat_correct": {
+                    "enabled": true,
+                    "front_one_seat_close_iou": 0.3,
+                    "child_sk_score_modify": 0.3,
+                    "sk_len_score_modify": 0.3,
+                    "child_predict_score_modify": 0.3
+                },
+                "##gesture_pred_thr": [0.99, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.3]
+            }
+        },
+        "wb_gesture": {
+            "static_smooth": {
+                "enabled": false,
+                "smooth_window_size": 7
+             },
+            "dyn_smooth": {
+                "enabled": false,
+                "smooth_window_size": 1
+            },
+            "union_smooth": {
+                "enabled": false,
+                "model": "data/gesture_rules/Rule_Union.model",
+                "smooth_window_size": 2
+            },
+            "max_lost": {
+                "enabled": false,
+                "max_lost_frame_cnt": 25
+            },
+            "face_filter": {
+              "enabled": true,
+              "face_filt_enable_cls": [
+                "FOREFINGER",
+                "HEART",
+                "FOUR",
+                "FIVE",
+                "OK",
+                "GUN",
+                "THUMB",
+                "THUMB_LEFT",
+                "THUMB_RIGHT",
+                "THUMB_DOWN",
+                "FIST",
+                "PALM",
+                "SILENCE",
+                "THUMB_V"
+              ],
+              "yaw_th": 15,
+              "n_len": 7,
+              "radius_ratio": 1.5,
+              "face_hand_gradient": true
+            }
+        },
+        "face_id": {
+            "verify": {
+              "enabled": true,
+              "verify_thr": 0.7
+            },
+            "login_faceid_sleep_time": 0.0
+        },
+        "distraction": {
+            "##fixation_smooth":{
+              "enabled" : false,
+              "max_gap" : 7,
+              "max_fixation" : 30,
+              "fixation_smooth_type" : "mean",
+              "velocity_threshold" : 3,
+              "median_window_size" : 3,
+              "saccades_window_size" : 3
+            },
+            "##over_exp_filter": {
+              "enabled": false,
+              "over_exposure_skip_frame": 1,
+              "expo_brightness_thr": 240,
+              "expo_brightness_ratio_thr": 0.5,
+              "expo_cal_area_margin": 1.1
+            },
+            "##kalman_for_gaze_point":{
+              "enabled": false
+            },
+            "##calibration": {
+              "enabled": false,
+              "dur_frame_limit": 1800
+            },
+            "##smooth": {
+              "enabled": false,
+              "smooth_gaze_window_size": 5,
+              "vote_thresh": 3
+            },
+            "adjust_gaze_result": {
+              "eye_status_adjust_merge_result": false,
+              "yaw_range_adjust_merge_result": [-180 ,180],
+              "head3d_use_fusion": false, 
+              "headposition_threshold" : [0, 0, 0, 0, 0, 0]
+            },
+            "score_calc": {
+              "long_distraction":{
+                "type": "normal",
+                "distraction_score_thr": [8, 6, 4],
+                "fast_fade_time": 0.2,
+                "score_window_dur_time": 10,
+                "encap_long_dis_continus_thr": 3,
+                "encap_continue_dis_max_focus_time": 0.2
+              },
+              "short_distraction":{
+                "type":"normal",
+                "distraction_score_thr": [14, 11, 8],
+                "fast_fade_time": 1.5,
+                "score_window_dur_time": 30
+              },
+              "score_cal_optional_cfg" :{
+                "##face_score_filter_thr": 0.1,
+                "##gaze_point_dist_thr": 0.2,
+                "##distraction_headpose_pitch_min_thr": -15,
+                "##distraction_headpose_pitch_max_thr": 60,
+                "##eye_wink_reset_headpose_thr": 1,
+                "##left_right_gaze_effect_thresh": 0.45,
+                "##distraction_smooth_region_enlarge_ratio": 0.0,
+                "##big_angle_window_size": 10,
+                "##big_angle_left_yaw_thr": 60,
+                "##big_angle_right_yaw_thr": -60,
+                "##big_angle_ratio_1": 0.8,
+                "##big_angle_ratio_2": 0.5,
+                "##big_angle_dur_thr": 4
+              },
+              "smooth_face_dur_thr": 1.0 ,
+              "conflict_sln": ["VALID_SCORE", "PRIORITY", "INDEX"],
+              "strategy_select": "GAZE3DAOI",
+              "strategy_targets": [
+                {
+                    "name": "HEADPOSE_ONLY",
+                    "zones": [
+                    {
+                        "type": "HEADPOSE",
+                        "shape": "RECTANGLE",
+                        "priority": 10,
+                        "weight": 0,
+                        "distraction_status": "focus",
+                        "yaw": [-30, 30],
+                        "pitch": [-20, 20],
+                        "roll": [-180, 180]
+                    },
+                    {
+                        "type": "HEADPOSE",
+                        "shape": "RECTANGLE",
+                        "priority": 0,
+                        "weight": 1,
+                        "distraction_status": "heavy",
+                        "yaw": [-180, 180],
+                        "pitch": [-180, 180],
+                        "roll": [-180, 180]
+                    }
+                    ]
+                 },
+                 {
+                    "name": "GAZE3DAOI",
+                    "distraction_gaze3d_area_strategy_select": "base",
+                    "zones": [
+                    {
+                        "type": "GAZE3DPOINT",
+                        "priority": 5,
+                        "weight": 0,
+                        "distraction_status": "focus",
+                        "shape": "HEADPOLYGONMODEL",
+                        "anchor_index": [24, 26, 32, 30],
+                        "ratio": 0.15
+                    },
+                    {
+                        "type": "HEADPOSE",
+                        "distraction_status": "focus",
+                        "priority": 5,
+                        "weight": 0,
+                        "shape": "RECTANGLE",
+                        "yaw": [-30, 30],
+                        "pitch": [-15, 60],
+                        "roll": [-180, 180]
+                    },
+                    {
+                        "type": "GAZE3DPOINT",
+                        "priority": 4,
+                        "weight": 1,
+                        "distraction_status": "heavy",
+                        "shape": "HEADPOLYGONMODEL",
+                        "anchor_index": [24, 26, 32, 30],
+                        "ratio": 100
+                    },
+                    {
+                        "type": "HEADPOSE",
+                        "priority": 3,
+                        "weight": 1,
+                        "distraction_status": "heavy",
+                        "shape": "RECTANGLE",
+                        "yaw": [-180, 180],
+                        "pitch": [-180, 180],
+                        "roll": [-180, 180]
+                    }
+                    ]
+                 }
+                ]
+            },
+            "gaze_m3d_aoi": {
+              "gaze3d_model": true,
+              "priority_dic": [1, 2, 3, 4, 5, 7, 12],
+              "aoi_info": {
+                "aoi_smooth_region_enlarge_ratio": 0.0,
+                "aoi_num": 7,
+                "anchors_path": "/data/user/0/com.senseauto.cockpitengine_5o/files/config/anchors_DMS2OMS.xyz",
+                "need_transfer": false,
+                "trans_triangle": true,
+                "aoi_type": "polygon_based_head3d",
+                "strategy_select": "base",
+                "aois": [
+                    {
+                    "index": 1,
+                    "name": "label_1",
+                    "anchor_index": [1, 3, 9, 7],
+                    "ratio": 0.1
+                    },
+                    {
+                        "index": 2,
+                        "name": "label_2",
+                        "anchor_index": [10, 11, 12],
+                        "ratio": 0.1
+                    },
+                    {
+                    "index": 3,
+                    "name": "label_3",
+                    "anchor_index": [13, 15, 17, 16],
+                    "ratio": 0.1
+                    },
+                    {
+                        "index": 4,
+                        "name": "label_4",
+                        "anchor_index": [19, 20, 23, 22],
+                        "ratio": 0.1
+                    },
+                    {
+                    "index": 5,
+                    "name": "label_5",
+                    "anchor_index": [24, 26, 32, 30],
+                    "ratio": 0.1
+                    },
+                    {
+                    "index": 7,
+                    "name": "label_7",
+                    "anchor_index": [38, 39, 42, 41],
+                    "ratio": 0.1
+                    },
+                    {
+                        "index": 12,
+                        "name": "other",
+                        "anchor_index": [1, 3, 9, 7],
+                        "ratio": 100
+                    }
+                ]
+              }
+            }
+        }
+    }
+}

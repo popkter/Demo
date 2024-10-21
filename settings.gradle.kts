@@ -21,4 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "LocalMultiModalDemo"
 include(":app")
+include(":lib_tts")
 include(":lib_modal")
+include(":lib_common")
+include(":lib_sound")

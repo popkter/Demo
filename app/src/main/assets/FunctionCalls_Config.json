@@ -1,0 +1,200 @@
+[
+  {
+    "name": "camera",
+    "description": "摄像头切换和开关工具",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "_area": {
+          "type": "string",
+          "description": "摄像头位置，如果是控制前置摄像头，使用front标识，如果是后置摄像头，则使用back标识"
+        },
+        "_control": {
+          "type": "integer",
+          "description": "摄像头开关标识，如果是0则代表关，如果是1则代表开"
+        }
+      },
+      "required": [
+        "_area, _control"
+      ]
+    }
+  },
+  {
+    "name": "music",
+    "description": "音乐搜索工具，可以搜索音乐",
+    "input_parameters": {
+      "type": "object",
+      "description": "歌手的名称和歌曲的名称",
+      "properties": {
+        "singer_name": {
+          "type": "string",
+          "description": "输出歌手名称"
+        },
+        "music_name": {
+          "type": "string",
+          "description": "输出音乐名称"
+        }
+      },
+      "required": [
+        "singer_name",
+        "music_name"
+      ]
+    }
+  },
+  {
+    "name": "musicControl",
+    "description": "音乐播放器控制工具，可以开启音乐、暂停音乐或者播放一下首音乐",
+    "input_parameters": {
+      "type": "object",
+      "description": "开启音乐、暂停音乐或者播放下一首音乐参数",
+      "properties": {
+        "musicState": {
+          "type": "integer",
+          "description": "音乐开关状态： 1表示播放或者打开，2表示播放下一首，3表示关闭或暂停音乐"
+        }
+      },
+      "required": [
+        "musicState"
+      ]
+    }
+  },
+  {
+    "name": "volume",
+    "description": "音量控制开关，包含调低音量，调高音量，静音3种选项。",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "_type": {
+          "type": "string",
+          "description": "控制音量类型，调高音量是up，调低音量是down，静音是mute。"
+        }
+      },
+      "required": [
+        "_type"
+      ]
+    }
+  },
+  {
+    "name": "wallpaper",
+    "description": "更换背景或壁纸，输入背景或壁纸的描述，可以实现背景或壁纸的更换，你也可以说帮我画一只动物之类",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "pic_desc": {
+          "type": "string",
+          "description": "背景或壁纸的描述"
+        }
+      },
+      "required": [
+        "pic_desc"
+      ]
+    }
+  },
+  {
+    "name": "set_interval",
+    "description": "用于设置定时任务",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "description": "需要调用的工具的名称"
+        },
+        "params": {
+          "type": "object",
+          "description": "被调用工具的所有参数及参数的值"
+        },
+        "type": {
+          "type": "string",
+          "description": "条件判断任务类型，在[一次,多次]选择",
+          "enum": [
+            "一次",
+            "多次"
+          ]
+        },
+        "time": {
+          "type": "string",
+          "description": "设定的时间，用时分秒表示"
+        }
+      },
+      "required": [
+        "pic_desc"
+      ]
+    }
+  },
+  {
+    "name": "weather",
+    "description": "获取天气工具",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "addr_name": {
+          "type": "string",
+          "description": "指定查询目的地天气，可以是城市名称、地区名称以及当前位置的天气等等"
+        },
+        "isSearchLocolWeather": {
+          "type": "bool",
+          "description": "如果是查询今天、当前或者不是具体哪个城市或区域的天气，该值则为true，如果清楚的知道查询城市名称、地区名称，该值则为false"
+        }
+      },
+      "required": [
+        "addr_name, isSearchLocolWeather"
+      ]
+    }
+  },
+  {
+    "name": "chat",
+    "description": "闲聊工具",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "need_image": {
+          "type": "bool",
+          "description": "是否使用图片，如果需要返回true,否则返回false"
+        }
+      },
+      "required": [
+        "need_image"
+      ]
+    }
+  },
+  {
+    "name": "voice_switch",
+    "description": "声音切换工具",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "voice_name": {
+          "type": "string",
+          "description": "声音类型，silk_man表示男声，wmy表示女声，pm表示萝莉音，你需要提示用户选择声音类型。",
+          "enum": ["silk_man", "wmy", "pm"]
+        }
+      },
+      "required": [
+        "voice_name"
+      ]
+    }
+  },
+  {
+    "name": "gen_ui",
+    "description": "POI搜索工具",
+    "input_parameters": {
+      "type": "object",
+      "description": "输入参数",
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "用户的提问完整问题"
+        }
+      },
+      "required": ["prompt"]
+    }
+  }
+]

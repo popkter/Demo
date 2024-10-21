@@ -1,18 +1,24 @@
 package com.senseauto.localmultimodaldemo.ui.view
 
 import android.graphics.BitmapFactory
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,38 +40,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senseauto.localmultimodaldemo.MainViewModel
 import com.senseauto.localmultimodaldemo.entity.SubSceneItem
+import kotlinx.coroutines.launch
 
 @Composable
 fun SubPicSceneView(
-    index: Int,
     subSceneItem: SubSceneItem,
-    listState: LazyListState,
     viewModel: MainViewModel
 ) {
     val context = LocalContext.current
     val takePhotoAction by viewModel.takePhotoAction.collectAsState(false)
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(subSceneItem) {
-        snapshotFlow {
-            listState.firstVisibleItemIndex == index
-        }.collect { visible ->
-            isVisible = visible
-        }
-    }
 
     LaunchedEffect(takePhotoAction) {
-        if (takePhotoAction && isVisible) {
+        if (takePhotoAction) {
             viewModel.stopTakePhoto()
             viewModel.updateBitmap(BitmapFactory.decodeResource(context.resources, subSceneItem.sceneCover))
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier
-                .width(894.dp)
-                .height(571.dp)
+                .fillMaxWidth()
+                .weight(10F)
                 .clip(RoundedCornerShape(20.dp)),
             painter = painterResource(subSceneItem.sceneCover),
             contentScale = ContentScale.Crop,
@@ -74,8 +71,9 @@ fun SubPicSceneView(
 
         LazyRow(
             modifier = Modifier
-                .padding(top = 30.dp)
-                .width(894.dp),
+                .padding(vertical = 15.dp)
+                .fillMaxWidth()
+                .weight(1.2F),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(subSceneItem.hints) {
@@ -100,8 +98,7 @@ fun SubPicSceneView(
                         modifier = Modifier
                             .padding(horizontal = 15.dp),
                         text = it.hint,
-                        color = Color.White,
-                        fontSize = 24.sp
+                        color = Color.White
                     )
                 }
 

@@ -1,0 +1,280 @@
+#JSGF V1.0 utf-8 cn;
+grammar pandora_main;
+public <pandora_main> = ( "<s>" ( [<asr_wakeup_words_slot>] ([<Prefix>] (
+<WakeUpWords>
+|<ShowMemo>
+|<PlayPrev>
+|<PlayNext>
+|<PlayContinue>
+|<PlayPause>
+|<PlayStop>
+|<RemoveAlarm>
+|<RemoveMemo>
+| <CallWithName>
+| <OpenApp>
+| <CloseApp>
+| <PlayRandomMusic>
+| <PlaySong>
+| <PlayArtistAndSong>
+| <PlayAlbum>
+| <PlayArtistAndAlbum>
+| <PlayArtist>
+| <ModeNight>
+| <ModeDay>
+| <ModeAuto>
+| <RouteDescClose>
+| <RouteDescOpen>
+| <QueryTime>
+| <QueryDistance>
+| <MapView3d>
+| <MapNorthUp>
+| <MapView2d>
+| <MapLiveTrafficClose>
+| <MapLiveTrafficOpen>
+| <MapZoomOut>
+| <MapZoomIn>
+| <MapCloseNavi>
+| <MapCancelNavi>
+| <MapCloseMap>
+| <OpenFm>
+| <CloseFm>
+| <PrePage>
+| <NextPage>
+| <OpenCarWindow>
+| <CloseCarWindow>
+| <CloseAC>
+| <OpenAP>
+| <CloseAP>
+| <NavStart>
+| <UserDef>
+| <Call_Sub_With_Name>
+| <SegChoose>
+| <MediaSourceSwitch>
+) ) )"</s>" );
+
+<WakeUpWords> = ("<Domain_user_wakeup_words_>"(
+ (<Domain_userdef_wakeup_slot>)
+)"</Domain_user_wakeup_words_>");
+
+<UserDef> = ("<user_def_>"(
+ (<Domain_userdef_commands_slot>)
+)"</user_def_>");
+
+<ShowMemo> =( "<Domain_global_show_memo_>" (
+  查看所有闹钟 | 查看所有提醒
+) "</Domain_global_show_memo_>");
+
+<RemoveAlarm> =( "<Domain_global_remove_alarm_>" (
+  删除所有闹钟|删除全部闹钟
+) "</Domain_global_remove_alarm_>");
+
+<RemoveMemo> =( "<Domain_global_remove_memo_>" (
+  删除所有提醒|删除全部提醒
+) "</Domain_global_remove_memo_>");
+
+<PlayPrev> = ("<Domain_media_player_play_pre_>" (
+ 上一首
+)"</Domain_media_player_play_pre_>");
+
+<PlayNext> = ("<Domain_media_player_play_next_>" (
+ 下一首
+)"</Domain_media_player_play_next_>");
+
+<PlayContinue> = ("<Domain_global_setting_play_continue_>"(
+ 继续播放
+)"</Domain_global_setting_play_continue_>");
+
+<PlayPause>=("<Domain_global_setting_play_pause_>"(
+ 暂停播放 | 音乐暂停 | 暂停音乐
+)"</Domain_global_setting_play_pause_>");
+
+<PlayStop>=("<Domain_global_setting_play_stop_>"(
+ 停止播放 | 关闭音乐 | 退出播放
+)"</Domain_global_setting_play_stop_>");
+
+
+<CallWithOutName> = ( "<Domain_phone_cmd_>" (
+ <CallAction>
+)"</Domain_phone_cmd_>");
+
+<CallWithName> = ( "<Domain_phone_call_sb_>" (
+(<CallAction_Prefix> 给 (<Domain_phone_contact_slot>))
+ | (给 (<Domain_phone_contact_slot>) <CallAction>)
+ | ( <CallAction_Prefix> (给 |到 ) <Domain_phone_contact_slot> 的 <PhoneType>)
+ | (呼叫 <Domain_phone_contact_slot>)
+)"</Domain_phone_call_sb_>");
+
+<CallAction> = ([拨 | 打 | 拨打][个 | 一个][电话]) | ((去 | 回)[个 | 一个]电话)|电话预约;
+
+<CallAction_Prefix> = ( (拨 | 打 | 拨打 | 回) [ 个 | 一个 ] [电话]);
+
+<CallAction_Cancel> = ((不 | 取消)[拨 | 打 | 拨打 | 回] [电话] [了]);
+
+<OpenApp> = ( "<Domain_app_open_>"(
+ ( 用 | 玩 | 打开一下 | 运行 | 启动 | 打开 | 运行一下 | 开启 | 加载 ) <Domain_app_appname_slot>
+)"</Domain_app_open_>");
+
+<CloseApp> = ( "<Domain_app_close_>"(
+( 关闭 | 停止 | 停止运行  ) <Domain_app_appname_slot>
+)"</Domain_app_close_>");
+
+<PlayRandomMusic> = ("<Domain_music_play_random_>"(
+ <Domain_music> (<mscSongSuffix>)
+)"</Domain_music_play_random_>");
+
+
+<PlaySong> = ("<Domain_music_search_song_>"(
+ <Domain_music>(<Domain_music_playList_slot>)
+)"</Domain_music_search_song_>");
+
+<PlayArtistAndSong> = ("<Domain_music_search_artist_song_>"(
+ <Domain_music>( <Domain_music_singer_slot> [的]<Domain_music_playList_slot>)
+)"</Domain_music_search_artist_song_>");
+
+<PlayAlbum> = ("<Domain_music_search_album_>"(
+ <Domain_music>(<Domain_music_album_slot> [专辑])
+)"</Domain_music_search_album_>");
+
+<PlayArtistAndAlbum> = ("<Domain_music_search_artist_album_>"(
+ <Domain_music>(<Domain_music_singer_slot> [的]<Domain_music_album_slot> [专辑])
+)"</Domain_music_search_artist_album_>");
+
+<PlayArtist> = ("<Domain_music_search_artist_>"(
+ <Domain_music>(<Domain_music_singer_slot> [的] [<mscSongSuffix>])
+)"</Domain_music_search_artist_>");
+
+<Domain_music> = (
+([<preActive>] <Domain_music_play_i> [<mscAmount>])
+| (<Domain_music_play_u> [<mscAmount>])
+);
+
+<ModeNight> = ("<Domain_map_mode_night_>"(
+ 黑夜模式
+)"</Domain_map_mode_night_>");
+
+<ModeDay> = ("<Domain_map_mode_day_>"(
+ 白天模式
+)"</Domain_map_mode_day_>");
+
+<ModeAuto> = ("<Domain_map_mode_auto_>"(
+ 自动模式
+)"</Domain_map_mode_auto_>");
+
+<RouteDescClose> = ("<Domain_map_route_desc_close_>"(
+ 退出全览 | 退出全程概览
+)"</Domain_map_route_desc_close_>");
+
+<RouteDescOpen> = ("<Domain_map_route_desc_open_>"(
+进入全览 | 全程概览 | 查看全程
+)"</Domain_map_route_desc_open_>");
+
+<QueryTime> = ("<Domain_map_act_query_time_>"(
+ 还要多久 | 还有多久 | 剩下多久
+)"</Domain_map_act_query_time_>");
+
+<QueryDistance> = ("<Domain_map_act_query_>"(
+ 还有多远 | 还有多少距离 | 还有几公里
+)"</Domain_map_act_query_>");
+
+<MapView3d> = ("<Domain_map_view_3d_>"(
+ 3d模式
+)"</Domain_map_view_3d_>");
+
+<MapNorthUp> = ("<Domain_map_view_north_up_>"(
+ 车头向北 | 地图正北 | 正北朝上 | 北向上
+)"</Domain_map_view_north_up_>");
+
+<MapView2d> = ("<Domain_map_view_track_up_>"(
+ 车头向上 | 车头朝前 | 2d模式
+)"</Domain_map_view_track_up_>");
+
+<MapLiveTrafficClose> = ("<Domain_map_liveTraffic_close_>"(
+ 实时路况关 | 关闭实时路况
+)"</Domain_map_liveTraffic_close_>");
+
+<MapLiveTrafficOpen> = ("<Domain_map_liveTraffic_open_>"(
+ 实时路况 | 实时路况开 | 打开实时路况
+)"</Domain_map_liveTraffic_open_>");
+
+<MapZoomIn> = ("<Domain_map_zoom_in_>"(
+ 放大地图 | 地图放大
+)"</Domain_map_zoom_in_>");
+
+<MapZoomOut> = ("<Domain_map_zoom_out_>"(
+ 缩小地图 | 地图缩小
+)"</Domain_map_zoom_out_>");
+
+<MapCloseNavi> = ("<Domain_map_close_navi_>"(
+ 退出导航 | 关闭导航 | 退出高德 | 退出高德地图 | 退出高德导航
+)"</Domain_map_close_navi_>");
+
+<MapCancelNavi> = ("<Domain_map_cancel_navi_>"(
+ 取消导航
+)"</Domain_map_cancel_navi_>");
+
+<MapCloseMap> = ("<Domain_map_close_map_>"(
+ 退出地图
+)"</Domain_map_close_map_>");
+
+<OpenFm> = ("<Domain_open_fm_>"(
+ 打开调频 | 打开FM发射 | 打开FM | 打开爱抚爱慕发射
+)"</Domain_open_fm_>");
+
+<CloseFm> = ("<Domain_close_fm_>"(
+ 关闭调频 | 关闭FM发射 | 关闭FM | 关闭爱抚爱慕发射
+)"</Domain_close_fm_>");
+
+<PrePage> = ("<Domain_global_pre_page_>"(
+ 上一页 | 前一页
+)"</Domain_global_pre_page_>");
+
+<NextPage> = ("<Domain_global_next_page_>"(
+ 下一页 | 后一页
+)"</Domain_global_next_page_>");
+
+<OpenCarWindow> = ("<Domain_vehicle_open_window_>"(
+ 打开车窗
+)"</Domain_vehicle_open_window_>");
+
+<CloseCarWindow> = ("<Domain_vehicle_close_window_>"(
+ 关闭车窗
+)"</Domain_vehicle_close_window_>");
+
+
+<OpenAC> = ("<Domain_ac_open_ac_>"(
+ 打开空调
+)"</Domain_ac_open_ac_>");
+
+<CloseAC> = ("<Domain_ac_close_ac_>"(
+ 关闭空调
+)"</Domain_ac_close_ac_>");
+
+<OpenAP> = ("<Domain_ac_open_ap_>"(
+ 打开空气净化器
+)"</Domain_ac_open_ap_>");
+
+<CloseAP> = ("<Domain_ac_close_ap_>"(
+ 关闭空气净化器
+)"</Domain_ac_close_ap_>");
+
+<NavStart> = ("<Domain_hotel_nav_>"(
+ [开始]导航[过去]
+)"</Domain_hotel_nav_>");
+
+<SegChoose> = ("<Domain_setting_seg_choose_>"(
+ [去|选[择]|给](<Domain_setting_seg_slot>)[这个|那个]
+)"</Domain_setting_seg_choose_>");
+
+<Call_Sub_With_Name> = ( "<Domain_phone_call_sub_sb_>" (
+  [给] (<Domain_phone_contact_sub_slot>)
+)"</Domain_phone_call_sub_sb_>");
+
+<Prefix> = ( 帮我 | 请 | 我要);
+
+<MediaSourceSwitch>=("<Domain_global_setting_media_source_switch_>"(
+ 更换音乐源为 (<MediaSource>)
+)"</Domain_global_setting_media_source_switch_>");
+
+<MediaSource>=("<Domain_global_setting_media_source_>"(
+ 蓝牙音乐 | 收藏音乐 | 本地音乐 | 优盘音乐 | 在线音乐
+)"</Domain_global_setting_media_source_>");

@@ -6,6 +6,7 @@ data class MainSceneItem(
     @DrawableRes val naviIcon:Int,
     @DrawableRes val titleIcon: Int,
     val title: String,
+    val desc: String,
     val scenes: List<SubSceneItem>,
     val sceneType: MainSceneType = GreetingScene
 )

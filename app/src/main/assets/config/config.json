@@ -1,0 +1,51 @@
+{
+    "license": "./config/vit_license.lic",
+    "log_level": 1,
+    "run_mode": "client",
+    "server": {
+        "modules": {
+            "language": {
+                "name": "funny",
+                "enable": true,
+                "model_path": "/data/mobile_drive/zhouwei3/jarvis/jarvis-nio_poc_br/zhouwei3/models/language/",
+                "max_running_batch": 20,
+                "device_id": 0
+            },
+            "vit": {
+                "name": "shabby",
+                "enable": true,
+                "model_path": "/data/mobile_drive/zhouwei3/jarvis/jarvis-nio_poc_br/zhouwei3/models/vit/",
+                "device_id": 0
+            }
+        }
+    },
+    "client": {
+        "addr": "https://101.230.144.229:8001",
+        "enable_compress": true,
+        "modules": {
+            "vit": {
+                "name": "shabby",
+                "enable": true,
+                "model_path": "./vit-u8/",
+                "device_id": 1
+            }
+        }
+    },
+    "prompts": {
+        "people_attr": {
+            "enabled": false,
+            "frame_rate": 2,
+            "prompt": "这是一张车舱内场景的图片。请问图中人物的年龄、性别、表情、发型、占位位置。 "
+        },
+        "dress_up": {
+            "enabled": false,
+            "frame_rate": 2,
+            "prompt": "这是一张车舱内场景的图片。请问图中人物的衣服类型、衣服颜色、是否戴眼镜。 "
+        },
+        "custom": {
+            "enabled": false,
+            "frame_rate": 2,
+            "prompt": "这是一张车舱内场景的图片。请问图中人物手上拿着什么物品？请只回答具体物品，不要答其他内容。 "
+        }
+    }
+}

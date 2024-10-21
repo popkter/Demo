@@ -1,0 +1,328 @@
+{
+  "init_thread_config": {
+    "thread_num": 5,
+    "thread_name": "SenseAuto_Cabin_Init",
+    "thread_optimize": true,
+    "#thread_affinity": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "run_thread_config": {
+    "thread_num": 3,
+    "thread_name": "SenseAuto_Cabin_Run",
+    "thread_optimize": true,
+    "#thread_affinity": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "optimize_by_frame_padding": true,
+  "algorithm": {
+    "whole_body": {
+      "enabled": true,
+      "frame_rate": -1,
+      "model": "/data/user/0/com.senseauto.cockpitengine_5o/files/config/MM_MME_MagiCube.model",
+      "hand_det_score_thr": 0.55,
+      "face_det_score_thr": 0.6,
+      "body_det_score_thr": 0.62,
+      "body_det_sec_score_thr": 0.62,
+      "head_det_score_thr": 0.8,
+      "face_head_iof_thr":0.9,
+      "body_track": {
+        "enabled": false,
+        "body_score_thrs": [
+          0.1,
+          0.6,
+          0.7
+        ],
+        "match_iou_thrs": [
+          0.1,
+          0.3,
+          0.5
+        ],
+        "num_frames_retain": 5,
+        "keep_num_tentatives": 3
+      },
+      "filter_body_head": {
+        "enabled": false,
+        "cbfilter_body_quality_thr": 0.55,
+        "cbfilter_kpt_head_score_thr": 0.35,
+        "cbfilter_kpt_head_count_thr": 3,
+        "cbfilter_back_head_score_thr": 0.1
+      }
+    },
+    "wb_face_track": {
+      "enabled": false,
+      "frame_rate": 10,
+      "model": "data/models/MM_MME_FaceAlignHead.model",
+      "headpose_model": "data/models/MM_MME_FaceHeadPose.model",
+      "enable_seat_id_tracking": false,
+      "whole_body_score_thr": 0.1,
+      "max_target_num": 5,
+      "align_sz_thr": 200,
+      "aligner_score_thr": 0.5,
+      "max_lost_frame_cnt": 0,
+      "use_rect_for_det": false
+    },
+    "wb_gesture": {
+      "enabled": false,
+      "frame_rate": 15,
+      "model": "data/models/MM_Smartv_Gesture.model",
+      "param": "data/config/gesture_cfg/static_param.json",
+      "enable_seat_id_tracking": true,
+      "whole_body_score_thr": 0.1,
+      "max_target_num": 10,
+      "align_sz_thr": 100,
+      "single_lost_thr": 0.25,
+      "aligner_score_thr": 0.65,
+      "max_lost_frame_cnt": 5,
+      "pos_predict_type": "optflow",
+      "track_type": "byte_track",
+      "special_thrd": {
+        "OTHERS":0,
+        "FOREFINGER": 0.477,
+        "V": 0.405,
+        "HEART": 0.5,
+        "FOUR": 0.3,
+        "FIVE": 0.423,
+        "SIX": 0.4,
+        "SIX_DOWN": 0.4,
+        "OK": 0.4,
+        "GUN": 0.2,
+        "THUMB": 0.45,
+        "THUMB_LEFT": 0.45,
+        "THUMB_RIGHT": 0.45,
+        "THUMB_DOWN": 0.45,
+        "FIST": 0.4,
+        "PALM": 0.3,
+        "SILENCE": 0.3,
+        "THREE": 0.3,
+        "THUMB_V": 0.3,
+        "TWO": 1,
+        "COMBTHREE": 1,
+        "SEP_TWO": 1
+      }
+    },
+    "hand_det": {
+      "enabled": false,
+      "frame_rate": 5,
+      "model": "data/models/MM_MME_HandDet.model",
+      "hand_score_thr": 0.55
+    },
+    "emotion_mouth": {
+      "enabled": false,
+      "frame_rate": 5,
+      "model": "data/models/MM_MME_EmotionMouth.model",
+      "##mouth_thrs": [
+        0.5
+      ],
+      "emotion_thrs": [
+        0.5,
+        0.6,
+        0.85,
+        0.65,
+        0.65
+      ],
+      "childcry_thrs": [0.8],
+      "childcry_valid_thrs": [0.5]
+    },
+    "face_attr": {
+      "enabled": false,
+      "frame_rate": 10,
+      "model": "data/models/MM_MME_FaceAttr.model",
+      "age_gender_frame_limit": 5,
+      "mask_glass_hat": {
+        "enabled": false,
+        "frame_rate": 1
+      },
+      "##face_attr_thrs": {
+        "child_thr": 0.5,
+        "face_quality_thr": 0.5,
+        "race_yellow_black_white_thr": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "mask_thr": 0.5,
+        "hat_thr": 0.5,
+        "gender_thr": 0.5,
+        "glasses_none_general_sunglasses_thr": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "action": {
+      "enabled": false,
+      "frame_rate": 1,
+      "model": "data/models/MM_MME_HOIDet.model",
+      "cls_thrs": [
+        0.36,
+        0.46,
+        0.85
+      ],
+      "det_thrs": [
+        0.1,
+        0.99
+      ],
+      "aio_crop_ratio": [
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ],
+      "max_action_people": 6,
+      "none_action_strategy_weights": [
+        1,
+        1.15
+      ]
+    },
+    "smoke": {
+      "enabled": false,
+      "frame_rate": 2,
+      "model": "data/models/MM_Smartv_Smoke.model",
+      "##smoke_thrs": [
+        [
+          0.7902889251708984
+        ],
+        [
+          0.5
+        ]
+      ]
+    },
+    "child": {
+      "enabled": false,
+      "frame_rate": 0.5,
+      "key_points_index": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        13,
+        14
+      ],
+      "model": "./data/models/MM_MME_SkeletonChild.model"
+    },
+    "pet_object": {
+      "enabled": false,
+      "frame_rate": 0.5,
+      "model": "data/models/MM_MME_ObjectPetDet.model",
+      "pet_object_frame_limit": 5,
+      "small_object_thrs": [0.67, 0.59, 0.24, 0.38],
+      "big_object_thrs": [0.30, 0.50, 0.19, 0.30],
+      "pet_thrs": [0.32]
+    },
+    "safety_seat": {
+      "enabled": false,
+      "frame_rate": 0.5,
+      "safety_seat_frame_limit": 5,
+      "model": "data/models/MM_ObjectFlow_SafetyseatDet.model",
+      "##safety_seat_thr": [
+        0.65
+      ]
+    },
+    "behavior_det": {
+      "enabled": false,
+      "frame_rate": 0.25,
+      "model": "data/models/MM_ObjectFlow_Abnormal.model"
+    },
+    "seat_belt_det": {
+      "enabled": false,
+      "frame_rate": 0.25,
+      "model": "data/models/MM_ObjectFlow_SeatBelt.model",
+      "##iou_thr": 0.3,
+      "##score_thr": [
+        0.2,
+        0.2
+      ],
+      "##action_threshold": 0.6
+    },
+    "gesture_dynamic": {
+      "enabled": false,
+      "frame_rate": 15,
+      "model": [
+        "data/models/MM_Smartv_GEDLocalization.model",
+        "data/models/MM_Smartv_GEDRecognition.model"
+      ],
+      "param": "data/config/gesture_cfg/dynamic_param.json",
+      "special_thrd": {
+        "GESTURE_PALM_WAVE_LEFT": 0.7,
+        "GESTURE_PALM_WAVE_RIGHT": 0.7,
+        "GESTURE_PALM_WAVE_UP": 0.7,
+        "GESTURE_PALM_WAVE_DOWN": 0.7,
+        "GESTURE_FOREFINGER_ROTATION_CLOCKWISE": 0.7,
+        "GESTURE_FOREFINGER_ROTATION_ANTICLOCKWISE": 0.7,
+        "GESTURE_PALM_MOVE_LEFT": 1.0,
+        "GESTURE_PALM_MOVE_RIGHT": 1.0,
+        "GESTURE_PALM2FIST": 0.7,
+        "GESTURE_PALM_VERTICAL_SWAY": 0.9
+      },
+      "keep_lost_count": 3,
+      "is_cat_orgcor": true
+    },
+    "face_id": {
+      "enabled": false,
+      "frame_rate": -1,
+      "model": "data/models/MM_Pattern_Verify.model"
+    },
+    "gaze": {
+      "enabled": false,
+      "frame_rate": 15,
+      "gaze_param": "data/config/distraction_cfg/gaze_param.json",
+      "left_model": "data/models/MM_SmartV_GazeLeftO.model",
+      "right_model": "data/models/MM_SmartV_GazeRightO.model"
+    },
+    "camera_occlusion": {
+      "enabled": false,
+      "frame_rate": 1,
+      "brightness_thrs": [
+        1,
+        127
+      ],
+      "occlusion_proportion_thr": 0.75,
+      "occlusion_time_thr": 5,
+      "edge_detector_config": {
+        "enable_edge_detector": false,
+        "edge_detector_value_threshold": 35,
+        "edge_detector_num_threshold": 1000,
+        "edge_detector_dx": true,
+        "edge_detector_dy": true
+      }
+    },
+    "head3d": {
+      "enabled": false,
+      "frame_rate": 15,
+      "model": "data/models/MM_Pattern_Head3d.model",
+      "camera_param_file": "data/config/distraction_cfg/camera_oms.json",
+      "head3d_param_file": "data/config/distraction_cfg/head3d_param.json",
+      "compensate_enable": true,
+      "headpose_yaw_enable": true
+    },
+    "eye": {
+      "enabled": false,
+      "frame_rate": 10,
+      "model": "data/models/MM_MME_Eye.model"
+    }
+  },
+  "debug_config": {
+    "dump_result": false,
+    "dump_image": false,
+    "monitor_cpu": false,
+    "monitor_mem": false,
+    "dump_op_image": [],
+    "dump_tensor": []
+  }
+}
