@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import com.senseauto.localmultimodaldemo.constant.ListData
 import com.senseauto.localmultimodaldemo.ui.theme.LocalMultiModalDemoTheme
 import com.senseauto.localmultimodaldemo.ui.view.DemoData
 import com.senseauto.localmultimodaldemo.ui.view.HomeView
@@ -77,7 +78,7 @@ class MainActivity : ComponentActivity() {
 
             LocalMultiModalDemoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeView(Modifier.padding(innerPadding), DemoData, viewModel)
+                    HomeView(Modifier.padding(innerPadding), ListData, viewModel)
                 }
             }
         }
