@@ -1,0 +1,17 @@
+//指定 Protobuf 版本
+syntax = "proto3";
+
+//指定包名
+package com.popkter.common;
+
+option java_package = "com.popkter.common";
+option java_outer_classname = "StudentOuterClass";
+//定义一个学生的消息类
+message Student{
+  //姓名
+  string name = 1;
+  //年龄
+  int32 age = 2;
+  //邮箱
+  string email = 3;
+}
