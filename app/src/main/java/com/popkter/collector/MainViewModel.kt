@@ -1,12 +1,17 @@
 package com.popkter.collector
 
+import android.media.AudioManager
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.gson.Gson
+import com.popkter.collector.tools.TTSAudioFocusHelper
 import com.popkter.common.application_ext.ApplicationModule
 import com.popkter.media.MediaPlayerExt
 import com.popkter.network.client.HttpRequestExt
@@ -40,9 +45,34 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
 
     private val _text = StringBuffer("你好我是小娜")
 
+    private val _ttsBuffer = StringBuilder()
+
+    private val audioFocusHelper = TTSAudioFocusHelper(ApplicationModule.application)
+
+    private val sentenceEndRegex = Regex(".*?[，。？！,.?!]")
+
     private val ttsPlayer = ExoPlayer.Builder(ApplicationModule.application).build().apply {
         playWhenReady = true
         prepare()
+        addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                Log.e(TAG, "onPlaybackStateChanged: $playbackState")
+                if (playbackState in arrayOf(Player.STATE_IDLE, Player.STATE_ENDED)) {
+                    audioFocusHelper.abandonAudioFocus()
+                    clearMediaItems()
+                    prepare()
+                }
+            }
+        })
+        setAudioAttributes(
+            // 设置音频属性为 TTS 通道
+            AudioAttributes.Builder()
+                .setUsage(C.USAGE_ASSISTANCE_ACCESSIBILITY) // TTS用途
+                .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH) // 内容类型为语音
+                .build(),
+            false
+        )
     }
 
     private val novelResultFlow = MutableSharedFlow<String>()
@@ -172,6 +202,7 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
             SCENE_DESC.forEach {
                 _text.append(it)
                 novelResultFlow.emit(_text.toString())
+                playStreamTts(it.toString())
                 delay(20)
             }
             imageResultFlow.emit(MUSIC_ITEM_COVER)
@@ -190,7 +221,10 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         requestJob?.cancel()
         requestJob = launch {
             loadDemoThink()
-            novelResultFlow.emit("本周温度逐渐升高，从21.5°C升至25.8°C，随后略有下降。早晚温差较大，建议携带薄外套，白天适宜轻便衣物。整体温度适中。")
+            val tts =
+                "本周温度逐渐升高，从21.5°C升至25.8°C，随后略有下降。早晚温差较大，建议携带薄外套，白天适宜轻便衣物。整体温度适中。"
+            novelResultFlow.emit(tts)
+            playCompleteTts(tts)
             val result = Gson().fromJson(WEATHER_DATA, WeatherResponse::class.java)
             weatherResult.emit(result)
         }
@@ -319,10 +353,12 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
                 "memory_info" to memoryInfo,
                 "stream" to true
             )
+
             val gson = Gson()
             val openSessionJsonString = gson.toJson(params)
 
             _text.setLength(0)
+            _ttsBuffer.setLength(0)
             HttpRequestExt.doPostStreamRequest(
                 "http://58.22.103.21:18800/novel/agent/chat",
                 header = mapOf("Content-Type" to "application/json"),
@@ -334,8 +370,9 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
                             line.substringAfter("data:").trim(),
                             ChatResponseData::class.java
                         )
-                        _text.append(result.data?.content)
+                        _text.append(result?.data?.content)
                         novelResultFlow.emit(_text.toString())
+                        playStreamTts(result?.data?.content)
                     }.onFailure {
                         Log.e(TAG, "loadNovelData: ${it.message}")
                     }
@@ -388,11 +425,37 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         }
     }
 
+    private suspend fun playCompleteTts(text: String) {
+        text.split("?", "[", "，", "。", "？", "！", "?", "!", "]").forEach {
+            requestTts(it)
+        }
+    }
+
+    private suspend fun playStreamTts(string: String?) {
+        _ttsBuffer.append(string)
+        val matchResult = sentenceEndRegex.find(_ttsBuffer)
+        if (matchResult != null) {
+            // 取出完整的句子
+            val sentence = matchResult.value.trim()
+            requestTts(sentence)
+            // 从缓冲区中删除已处理的句子
+            _ttsBuffer.delete(0, matchResult.range.last + 1)
+        }
+    }
+
 
     suspend fun requestTts(text: String) {
+        Log.e(TAG, "requestTts: $text")
         coroutineScope {
-            val query = URLEncoder.encode(text, "UTF-8")
-            ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query"))
+            withContext(Dispatchers.IO) {
+                if (audioFocusHelper.requestAudioFocus()) {
+                    val query = URLEncoder.encode(text, "UTF-8")
+                    withContext(Dispatchers.Main) {
+                        Log.e(TAG, "requestTts: ${ttsPlayer.playbackState}")
+                        ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query"))
+                    }
+                }
+            }
         }
     }
 

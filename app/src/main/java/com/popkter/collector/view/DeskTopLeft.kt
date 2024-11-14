@@ -1,4 +1,4 @@
-package com.senseauto.basiclibrary.view
+package com.popkter.collector.view
 
 import android.text.TextPaint
 import android.widget.Toast
@@ -123,7 +123,7 @@ fun DeskTopLeft(modifier: Modifier, viewModel: MainViewModel) {
                                 viewModel.todo("我心情很郁闷，我想听首歌")
                             }
                             "MOCK" -> {
-                                val string = "你好，今天过得怎么样？希望一切顺利！对了：你看到最新的AI新闻了吗；真是令人兴奋，不是吗？"
+                                val string = "我心情很郁闷，我想听首歌。"
                                 scope.launch {
 //                                    viewModel.requestTts(string)
 
@@ -191,16 +191,16 @@ fun DataResultView(
                         visibilityThreshold = IntSize.VisibilityThreshold
                     ),
                 ) { _, _ ->
-                    scope.coroutineContext.cancelChildren()
-                    //different delay
-                    if (listPoi.isNotEmpty()) {
-
-                    } else {
-                        scope.launch {
-                            delay(8000)
-                            viewModel.resetData()
-                        }
-                    }
+//                    scope.coroutineContext.cancelChildren()
+//                    //different delay
+//                    if (listPoi.isNotEmpty()) {
+//
+//                    } else {
+//                        scope.launch {
+//                            delay(20000)
+//                            viewModel.resetData()
+//                        }
+//                    }
                 }
                 .pointerInput(Unit) {
                     detectTapGestures {

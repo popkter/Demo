@@ -1,4 +1,4 @@
-package com.senseauto.basiclibrary.view
+package com.popkter.collector.view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
