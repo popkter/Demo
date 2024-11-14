@@ -123,14 +123,14 @@ fun DeskTopLeft(modifier: Modifier, viewModel: MainViewModel) {
                                 viewModel.todo("我心情很郁闷，我想听首歌")
                             }
                             "MOCK" -> {
-                                val string = "你好，今天过得怎么样？希望一切顺利！对了：你看到最新的AI新闻了吗；真是令人兴奋，不是吗？"
                                 scope.launch {
-//                                    viewModel.requestTts(string)
 
-                                    string.split(",", "，", ".", "。", "!", "?", "；",";",":","：").forEach {str->
-                                        viewModel.requestTts(str)
+                                    val string = "不保证处理器调用的顺序. 如果需要在一个符号之后处理另一个符号, 则必须通过返回那些在当前轮中\"不可达\"的符号来明确指定, 这些符号是 process 方法的结果."
+                                    string.split(",").forEach {str->
+                                        viewModel.requestAudio(str)
                                     }
                                 }
+//                                viewModel.requestAudio(string)
                             }
                         }
                     }

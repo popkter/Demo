@@ -231,9 +231,11 @@ object HttpRequestExt : CoroutineScope by CoroutineScope(Dispatchers.IO + Superv
                 }
             }.bodyAsChannel().apply {
                 while (!isClosedForRead) {
-                    val bytesRead = readAvailable(buffer)
-                    if (bytesRead > 0) {
-                        outputStream.write(buffer, 0, bytesRead)
+                    outputStream.use {
+                        val bytesRead = readAvailable(buffer)
+                        if (bytesRead > 0) {
+                            it.write(buffer, 0, bytesRead)
+                        }
                     }
                 }
             }

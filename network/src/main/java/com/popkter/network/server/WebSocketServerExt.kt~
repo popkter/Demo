@@ -21,7 +21,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -52,8 +51,8 @@ class WebSocketServerExt private constructor() : CoroutineScope by CoroutineScop
         launch {
             server = embeddedServer(CIO, port = 8087, host = "0.0.0.0") {
                 install(WebSockets) {
-                    pingPeriod = Duration.ofSeconds(10)
-                    timeout =  Duration.ofSeconds(20)
+                    pingPeriod = 10.seconds
+                    timeout = 20.seconds
                     maxFrameSize = Long.MAX_VALUE
                     masking = false
                 }

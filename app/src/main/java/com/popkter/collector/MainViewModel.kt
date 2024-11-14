@@ -2,49 +2,51 @@ package com.popkter.collector
 
 import android.net.Uri
 import android.util.Log
-import androidx.annotation.OptIn
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.DefaultDataSourceFactory
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.ExoPlayer
 import com.google.gson.Gson
 import com.popkter.common.application_ext.ApplicationModule
 import com.popkter.media.MediaPlayerExt
 import com.popkter.network.client.HttpRequestExt
 import com.senseauto.basiclibrary.entity.Poi
 import com.senseauto.basiclibrary.entity.WeatherResponse
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
+import java.net.URLEncoder
 import kotlin.math.max
 
 class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.IO + Job()) {
 
     private val _text = StringBuffer("你好我是小娜")
 
+    private val ttsPlayer = ExoPlayer.Builder(ApplicationModule.application).build().apply {
+        playWhenReady = true
+        prepare()
+    }
+
     private val novelResultFlow = MutableSharedFlow<String>()
     val novelResult = this.novelResultFlow.asSharedFlow()
-
 
     private val imageResultFlow = MutableSharedFlow<String>()
     val imageResult = imageResultFlow.asSharedFlow()
@@ -346,42 +348,51 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         // TODO:
 
     }
-    fun requestAudio(text: String) {
 
-        launch(Dispatchers.IO) {
-
-            val tempFile =  File.createTempFile("temp_audio", "temp", ApplicationModule.application.cacheDir)
-
-            val response = HttpRequestExt.mClient.post("http://124.221.124.238:10010/synthesize") {
-                contentType(ContentType.Application.Json)
-                // 配置请求体
-                setBody(
-                    gson.toJson(
-                        mapOf(
-                            "text" to text,
-                            "voice" to "Female-XiaoxiaoNeural",
-                            "rate" to 12,
-                            "volume" to 0
-                        )
-                    )
-                )
+    fun todo(text: String) {
+        runBlocking {
+            val client = HttpClient(CIO) {
+                install(Logging) {
+                    level = LogLevel.INFO
+                }
             }
 
-            FileOutputStream(tempFile).use { outputStream ->
-                val byteChannel: ByteReadChannel = response.bodyAsChannel()
-                val buffer = ByteArray(4096)
-                while (!byteChannel.isClosedForRead) {
-                    val bytesRead = byteChannel.readAvailable(buffer)
-                    if (bytesRead > 0) {
-                        outputStream.write(buffer, 0, bytesRead)
+            val query = URLEncoder.encode(text, "UTF-8")
+
+            client.get("http://58.22.103.21:18800/novel/agent/music_recom_by_mood?query=$query&is_stream=1")
+                .run {
+                    if (status.value == 200) {
+                        //构建stream
+                        val buffer = ByteArray(4096)
+                        bodyAsChannel().run {
+
+                            ByteArrayOutputStream().use { outputStream ->
+                                //流未关闭,读到buffer中
+                                while (!isClosedForRead) {
+                                    val bytesRead = readAvailable(buffer)
+                                    if (bytesRead > 0) {
+                                        outputStream.write(buffer, 0, bytesRead)
+                                    }
+                                }
+
+                                //拆分成两个string
+                                val responseParts =
+                                    outputStream.toString("UTF-8").trimIndent().split("\n\n")
+                                responseParts.forEachIndexed { index, s ->
+                                    println("response $index = $s")
+                                }
+                            }
+                        }
                     }
                 }
-                withContext(Dispatchers.Main) {
-                    mediaPlayer.addMediaItem(MediaItem.fromUri(tempFile.toUri()))
-                    play(false)
-                }
-            }
+        }
+    }
 
+
+    suspend fun requestTts(text: String) {
+        coroutineScope {
+            val query = URLEncoder.encode(text, "UTF-8")
+            ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query"))
         }
     }
 
