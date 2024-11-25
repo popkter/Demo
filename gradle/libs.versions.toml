@@ -113,7 +113,7 @@ ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-conte
 ktor-client-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
 ktor-client-plugins = { module = "io.ktor:ktor-client-plugins", version.ref = "ktorVersion" }
-
+ktor-network-tls = { module = "io.ktor:ktor-network-tls", version.ref = "ktorVersion" }
 
 # accompanist -  Jetpack Compose 拓展库
 accompanist-webview = { group = "com.google.accompanist", name = "accompanist-webview", version.ref = "accompanistVersion" }

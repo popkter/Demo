@@ -1,6 +1,6 @@
 package com.popkter.collector
 
-import com.senseauto.basiclibrary.entity.Poi
+import com.popkter.collector.entity.Poi
 
 
 val NOVEL_DATA_LIST = listOf(

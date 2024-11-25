@@ -1,4 +1,4 @@
-package com.popkter.collector.view
+package com.popkter.collector.ui.view
 
 import android.text.TextPaint
 import android.widget.Toast
@@ -77,11 +77,11 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.popkter.collector.MUSIC_ITEM_COVER
-import com.popkter.collector.MainViewModel
-import com.popkter.collector.MainViewModel.Companion.MUSIC_LOADING
-import com.popkter.collector.MainViewModel.Companion.MUSIC_PLAYING
+import com.popkter.collector.viewmodel.MainViewModel
+import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_LOADING
+import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_PLAYING
 import com.popkter.collector.R
-import com.senseauto.basiclibrary.entity.Poi
+import com.popkter.collector.entity.Poi
 import com.popkter.collector.formatTimestamp
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
@@ -151,7 +151,7 @@ fun DataResultView(
     val text by viewModel.novelResult.collectAsState("")
     val imageUrl by viewModel.imageResult.collectAsState("")
     val listPoi by viewModel.poiResultFlow.collectAsState(emptyList())
-    val listWeather by viewModel.weatherResultFlow.collectAsState(null)
+    val listWeather by viewModel.weatherResult.collectAsState(null)
 
     val canDisplayMusicCard by viewModel.showMusicCard.collectAsState(false)
     val isPlaying by viewModel.musicPlayStatus.collectAsState(false)
@@ -273,11 +273,11 @@ fun DataResultView(
                     }
                 }
 
-                // 当 listWeather 不为空时渲染内容
-                if (listWeather != null) {
+
+                listWeather?.let {
                     LineChart(modifier,
-                        listWeather!!.days.map { it.temp.toFloat() },
-                        listWeather!!.days.map { formatTimestamp(it.datetimeEpoch) })
+                        listWeather!!.map { it.temp.toFloat() },
+                        listWeather!!.map { formatTimestamp(it.datetimeEpoch) })
                 }
 
                 if (canDisplayMusicCard) {

@@ -1,9 +1,23 @@
+import java.io.FileInputStream
+import java.io.InputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.kotlin.compose)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    FileInputStream(localPropertiesFile).use { stream->
+        localProperties.load(stream)
+    }
+}
+
+val deepSeekApiKey: String = localProperties.getProperty("deep_seek_api_key").ifEmpty { "" }
 
 android {
     namespace = "com.popkter.collector"
@@ -15,6 +29,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "DEEP_SEEK_API_KEY", deepSeekApiKey)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -72,6 +88,7 @@ dependencies {
     implementation (libs.lottie.compose)
     implementation(libs.compose.coil)
     implementation(libs.coil.network.okhttp) // Only available on Android/JVM.
+
     implementation(libs.shapeView)
 
 

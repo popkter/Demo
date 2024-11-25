@@ -24,12 +24,11 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.websockets)
+    implementation(libs.ktor.network.tls)
+    implementation(libs.ktor.client.logging)
     implementation(libs.gson)
 
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.core.jvm)
     implementation(libs.coroutines.android)
-
-
-    implementation(libs.ktor.client.logging)
 }

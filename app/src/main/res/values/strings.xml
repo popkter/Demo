@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">POPCollector</string>
-    <string name="title_activity_compose">ComposeActivity</string>
+    <string name="title_activity_compose">POPCollector</string>
 </resources>

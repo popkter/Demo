@@ -1,4 +1,4 @@
-package com.senseauto.basiclibrary.entity
+package com.popkter.collector.entity
 
 
 data class Poi(

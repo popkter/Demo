@@ -37,9 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.popkter.collector.ui.theme.POPCollectorTheme
-import com.popkter.collector.view.DeskTopLeft
-import com.popkter.collector.view.DeskTopRight
-import com.popkter.collector.view.LineChart
+import com.popkter.collector.ui.view.DeskTopLeft
+import com.popkter.collector.ui.view.DeskTopRight
+import com.popkter.collector.ui.view.LineChart
+import com.popkter.collector.viewmodel.MainViewModel
 import java.lang.Integer.max
 import java.time.Instant
 import java.time.ZoneId

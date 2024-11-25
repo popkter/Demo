@@ -1,9 +1,9 @@
-package com.popkter.collector
+package com.popkter.collector.viewmodel
 
-import android.media.AudioManager
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -11,12 +11,19 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.gson.Gson
+import com.popkter.collector.MUSIC_ITEM_COVER
+import com.popkter.collector.NOVEL_DATA_LIST
+import com.popkter.collector.POI_LIST
+import com.popkter.collector.SCENE_DESC
+import com.popkter.collector.THINK_DESC
+import com.popkter.collector.entity.Poi
+import com.popkter.collector.model.DaysWeather
+import com.popkter.collector.model.DeepSeekModel
+import com.popkter.collector.model.WeatherModel
 import com.popkter.collector.tools.TTSAudioFocusHelper
 import com.popkter.common.application_ext.ApplicationModule
 import com.popkter.media.MediaPlayerExt
 import com.popkter.network.client.HttpRequestExt
-import com.senseauto.basiclibrary.entity.Poi
-import com.senseauto.basiclibrary.entity.WeatherResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.LogLevel
@@ -81,8 +88,8 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
     private val imageResultFlow = MutableSharedFlow<String>()
     val imageResult = imageResultFlow.asSharedFlow()
 
-    private val weatherResult = MutableSharedFlow<WeatherResponse?>()
-    val weatherResultFlow = weatherResult.asSharedFlow()
+    private val weatherResultFlow = MutableSharedFlow<List<DaysWeather>?>()
+    val weatherResult = weatherResultFlow.asSharedFlow()
 
     private val poiResult = MutableSharedFlow<List<Poi>>()
     val poiResultFlow = poiResult.asSharedFlow()
@@ -112,7 +119,6 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
     private var requestJob: Job? = null
 
     private val gson = Gson()
-
 
     private val mediaPlayer = MediaPlayerExt(ApplicationModule.application).apply {
         loadListener = object : MediaPlayerExt.MusicLoader {
@@ -179,7 +185,7 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
             novelResultFlow.emit(_text.toString())
             delay(20)
         }
-        delay(1000)
+        delay(10000)
         resetDataInternal()
     }
 
@@ -221,12 +227,18 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         requestJob?.cancel()
         requestJob = launch {
             loadDemoThink()
-            val tts =
-                "本周温度逐渐升高，从21.5°C升至25.8°C，随后略有下降。早晚温差较大，建议携带薄外套，白天适宜轻便衣物。整体温度适中。"
-            novelResultFlow.emit(tts)
-            playCompleteTts(tts)
-            val result = Gson().fromJson(WEATHER_DATA, WeatherResponse::class.java)
-            weatherResult.emit(result)
+//            WeatherModel.instance.load7daysWeather().let {(list,tts)->
+//                novelResultFlow.emit(tts)
+//                weatherResultFlow.emit(list)
+//                playCompleteTts(tts)
+//            }
+            WeatherModel.instance.load7daysWeatherChunk(onChunkUpdate = {
+                _text.append(it)
+                playStreamTts(it)
+                novelResultFlow.emit(_text.toString())
+            }).let { weatherData->
+                weatherResultFlow.emit(weatherData)
+            }
         }
     }
 
@@ -321,7 +333,7 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
             showMusicInWidgetFlow.emit(true)
         }
         showMusicCardFlow.emit(false)
-        weatherResult.emit(null)
+        weatherResultFlow.emit(null)
         novelResultFlow.emit("")
         imageResultFlow.emit("")
         poiResult.emit(emptyList())
@@ -452,7 +464,7 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
                     val query = URLEncoder.encode(text, "UTF-8")
                     withContext(Dispatchers.Main) {
                         Log.e(TAG, "requestTts: ${ttsPlayer.playbackState}")
-                        ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query"))
+                        ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query&voice=Female-XiaoxiaoNeural&rate=12&volume=0"))
                     }
                 }
             }

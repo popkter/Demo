@@ -3,6 +3,7 @@ package com.popkter.network.client
 import com.google.gson.GsonBuilder
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -34,11 +35,11 @@ object HttpRequestExt : CoroutineScope by CoroutineScope(Dispatchers.IO + Superv
 
     const val TAG = "HttpRequestExt`"
 
-    val mClient = HttpClient(CIO) {
+    val mClient = HttpClient(OkHttp) {
         install(HttpTimeout) {
-            requestTimeoutMillis = 10000 // 请求超时时间
-            connectTimeoutMillis = 10000 // 连接超时时间
-            socketTimeoutMillis = 10000 // 读写超时时间
+            requestTimeoutMillis = 50000 // 请求超时时间
+            connectTimeoutMillis = 50000 // 连接超时时间
+            socketTimeoutMillis = 50000 // 读写超时时间
         }
         install(Logging) {
             //自定义输出日志

@@ -1,4 +1,4 @@
-package com.popkter.collector.view
+package com.popkter.collector.ui.view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -45,9 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.popkter.collector.MUSIC_ITEM_COVER
-import com.popkter.collector.MainViewModel
-import com.popkter.collector.MainViewModel.Companion.MUSIC_LOADING
-import com.popkter.collector.MainViewModel.Companion.MUSIC_PLAYING
+import com.popkter.collector.viewmodel.MainViewModel
+import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_LOADING
+import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_PLAYING
 import com.popkter.collector.R
 
 @Composable
