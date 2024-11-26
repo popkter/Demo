@@ -1,5 +1,4 @@
 import java.io.FileInputStream
-import java.io.InputStream
 import java.util.Properties
 
 plugins {
@@ -91,12 +90,11 @@ dependencies {
 
     implementation(libs.shapeView)
 
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.junit)
+//    testImplementation(libs.junit)
+//    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+//    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
@@ -122,4 +120,5 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":media"))
     implementation(project(":common"))
+    implementation(project(":voice_assistant"))
 }

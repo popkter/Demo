@@ -83,16 +83,20 @@ import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_PLAYING
 import com.popkter.collector.R
 import com.popkter.collector.entity.Poi
 import com.popkter.collector.formatTimestamp
+import com.popkter.collector.viewmodel.ChatViewModel
+import com.popkter.voice_assistant.base.BaseAsrHelper
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "DeskTopLeft"
 
-private val buttons = arrayOf("讲笑话", "认场景", "搜地点", "查天气", "播音乐", "MOCK", "TODO")
+private val buttons =
+//    arrayOf("讲笑话", "认场景", "搜地点", "查天气", "播音乐", "MOCK", "TODO", "0", "30", "60")
+    arrayOf("0", "30", "60")
 
 @Composable
-fun DeskTopLeft(modifier: Modifier, viewModel: MainViewModel) {
+fun DeskTopLeft(modifier: Modifier, viewModel: ChatViewModel) {
     val scope = rememberCoroutineScope()
     Box(
         modifier = modifier.fillMaxHeight()
@@ -114,23 +118,32 @@ fun DeskTopLeft(modifier: Modifier, viewModel: MainViewModel) {
                 items(buttons) {
                     LoadDataButton(it) {
                         when (it) {
-                            "讲笑话" -> viewModel.loadNovelData()
-                            "认场景" -> viewModel.loadSceneDemoData()
-                            "搜地点" -> viewModel.loadPoiDemoData()
-                            "查天气" -> viewModel.loadWeatherDemoData()
-                            "播音乐" -> viewModel.loadMusicDemoData()
-                            "TODO" -> {
-                                viewModel.todo("我心情很郁闷，我想听首歌")
+//                            "讲笑话" -> viewModel.loadNovelData()
+//                            "认场景" -> viewModel.loadSceneDemoData()
+//                            "搜地点" -> viewModel.loadPoiDemoData()
+//                            "查天气" -> viewModel.loadWeatherDemoData()
+//                            "播音乐" -> viewModel.loadMusicDemoData()
+//                            "MOCK" -> {
+//                                scope.launch {
+//                                    arrayOf("我心情很郁闷，","我想听首歌。","今天天气怎么样","你知道么，哈哈","你好呀","TTS。").forEach{ str->
+//                                        delay(50)
+//                                        viewModel.playUniSoundChunkTts(str)
+//                                    }
+//                                }
+//                            }
+//                            "TODO" -> {
+//                                viewModel.todo()
+//                            }
+                            "0" -> {
+                                viewModel.updateDuplexTimeout(BaseAsrHelper.DuplexTimeout.ZERO)
                             }
-                            "MOCK" -> {
-                                val string = "我心情很郁闷，我想听首歌。"
-                                scope.launch {
-//                                    viewModel.requestTts(string)
 
-                                    string.split(",", "，", ".", "。", "!", "?", "；",";",":","：").forEach {str->
-                                        viewModel.requestTts(str)
-                                    }
-                                }
+                            "30" -> {
+                                viewModel.updateDuplexTimeout(BaseAsrHelper.DuplexTimeout.HALF_ONE_MINUTE)
+                            }
+
+                            "60" -> {
+                                viewModel.updateDuplexTimeout(BaseAsrHelper.DuplexTimeout.ONE_MINUTE)
                             }
                         }
                     }
@@ -144,7 +157,7 @@ fun DeskTopLeft(modifier: Modifier, viewModel: MainViewModel) {
 @Composable
 fun DataResultView(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel,
+    viewModel: ChatViewModel,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -231,7 +244,12 @@ fun DataResultView(
                 // 当 text 和 listPoi 都为空时，显示VPA
                 if (text.isEmpty() && listPoi.isEmpty() && listWeather == null && !canDisplayMusicCard) {
                     LottieAnimationView(
-                        modifier.size(60.dp, 60.dp), "Idle.json"
+                        modifier
+                            .size(60.dp, 60.dp)
+                            .clickable {
+                                viewModel.startWakeUp()
+                            },
+                        "Idle.json"
                     )
                 }
                 // 当 text 不为空时渲染内容
@@ -253,10 +271,7 @@ fun DataResultView(
                         modifier = modifier
                             .sizeIn(50.dp, 50.dp, 200.dp, 200.dp)
                             .padding(10.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable {
-                                viewModel.loadPoiDemoData()
-                            },
+                            .clip(RoundedCornerShape(10.dp)),
                     )
                 }
                 // 当 listPoi 不为空时渲染内容
@@ -466,15 +481,13 @@ fun LineChart(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MusicPlayerCard(
-    viewModel: MainViewModel,
+    viewModel: ChatViewModel,
     isPlaying: Comparable<*>,
 ) {
     val title by viewModel.musicInfo.collectAsState("歌曲名")
     val progress by viewModel.musicProgress.collectAsState(0L)
     val duration by viewModel.musicDuration.collectAsState(0L)
-    val imageUrl by rememberUpdatedState(
-        viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString() ?: MUSIC_ITEM_COVER
-    )
+    val imageUrl by rememberUpdatedState(MUSIC_ITEM_COVER)
 
 
     val playIcon by rememberUpdatedState(

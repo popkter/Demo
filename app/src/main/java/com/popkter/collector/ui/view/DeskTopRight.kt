@@ -49,9 +49,10 @@ import com.popkter.collector.viewmodel.MainViewModel
 import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_LOADING
 import com.popkter.collector.viewmodel.MainViewModel.Companion.MUSIC_PLAYING
 import com.popkter.collector.R
+import com.popkter.collector.viewmodel.ChatViewModel
 
 @Composable
-fun DeskTopRight(modifier: Modifier, viewModel: MainViewModel) {
+fun DeskTopRight(modifier: Modifier, viewModel: ChatViewModel) {
 
     val canDisplayMusicCard by viewModel.showMusicInWidget.collectAsState(false)
     val isPlaying by viewModel.musicPlayStatus.collectAsState(false)
@@ -79,15 +80,13 @@ fun WeatherCard(data: Any) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MusicPlayerWidgetCard(
-    viewModel: MainViewModel,
+    viewModel: ChatViewModel,
     isPlaying: Comparable<*>,
 ) {
     val title by viewModel.musicInfo.collectAsState("歌曲名")
     val progress by viewModel.musicProgress.collectAsState(0L)
     val duration by viewModel.musicDuration.collectAsState(0L)
-    val imageUrl by rememberUpdatedState(
-        viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString() ?: MUSIC_ITEM_COVER
-    )
+    val imageUrl by rememberUpdatedState(MUSIC_ITEM_COVER)
 
 
     val playIcon by rememberUpdatedState(

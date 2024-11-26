@@ -2,12 +2,16 @@ package com.popkter.collector
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -40,6 +44,7 @@ import com.popkter.collector.ui.theme.POPCollectorTheme
 import com.popkter.collector.ui.view.DeskTopLeft
 import com.popkter.collector.ui.view.DeskTopRight
 import com.popkter.collector.ui.view.LineChart
+import com.popkter.collector.viewmodel.ChatViewModel
 import com.popkter.collector.viewmodel.MainViewModel
 import java.lang.Integer.max
 import java.time.Instant
@@ -53,17 +58,35 @@ class ComposeActivity : ComponentActivity() {
         private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 100
         private const val TAG = "ComposeActivity"
         private val WALL_PAPER_LIST = arrayListOf(R.mipmap.app_bg_2, R.mipmap.app_bg)
+        private val permissions = listOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
     }
+
+    private val requestMultiplePermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val grantedPermissions = permissions.filterValues { it }.keys
+            val deniedPermissions = permissions.filterValues { !it }.keys
+
+            if (grantedPermissions.isNotEmpty()) {
+                Toast.makeText(this, "以下权限已授予: $grantedPermissions", Toast.LENGTH_SHORT).show()
+            }
+
+            if (deniedPermissions.isNotEmpty()) {
+                Toast.makeText(this, "以下权限被拒绝: $deniedPermissions", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private val viewModel: ChatViewModel by viewModels()
 
     private var currentWallPaperIndex = 0
 
-    private val viewModel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (checkAndRequestPermissions(REQUEST_CODE_READ_EXTERNAL_STORAGE)) {
-            viewModel.loadMusicFromLocal()
-        }
+        requestMultiplePermissionsLauncher.checkPermissions(this, permissions)
         setContent {
             POPCollectorTheme {
                 var wallpaper by remember { mutableIntStateOf(R.mipmap.app_bg) }
@@ -80,7 +103,7 @@ class ComposeActivity : ComponentActivity() {
                                     }
                                 }
                             }
-                            .pointerInput(Unit){
+                            .pointerInput(Unit) {
                                 detectTapGestures {
                                     viewModel.resetData()
                                 }
@@ -129,28 +152,9 @@ class ComposeActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-
-}
-
-fun Activity.checkAndRequestPermissions(requestCode: Int): Boolean {
-    return if (ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            requestCode
-        )
-        false
-    } else {
-        true
+        viewModel.initVui()
     }
 }
-
 
 fun formatTimestamp(timestamp: Long): String {
     // 将时间戳转换为 LocalDate
@@ -175,48 +179,22 @@ fun PreviewLineChart() {
     LineChart(temperatures = temperatures, timestamps = timestamps)
 }
 
-suspend fun PointerInputScope.detectMultitouchSwipeGesture(
-    minPointers: Int,
-    onSwipe: (SwipeDirection) -> Unit
+fun ActivityResultLauncher<Array<String>>.checkPermissions(
+    context: Context,
+    permissions: List<String>
 ) {
-    Log.e("MainViewModel", "detectMultitouchSwipeGesture: onSwipe")
-    awaitPointerEventScope {
-        while (true) {
-            // 等待直到检测到最少数量的触摸点
-            val down = awaitFirstDown(requireUnconsumed = false)
-            var pointerCount = 1
-
-            // 监听指针事件，直到达到指定数量的触摸点
-            while (pointerCount < minPointers) {
-                val event = awaitPointerEvent()
-                pointerCount = event.changes.size
-            }
-
-            // 当达到双指触摸时，开始检测水平滑动
-            var initialOffset = Offset.Zero
-            var totalDragDistance = 0f
-
-            awaitHorizontalTouchSlopOrCancellation(down.id) { change, overSlop ->
-                initialOffset = change.position
-                totalDragDistance += overSlop
-            }?.let { change ->
-                do {
-                    val dragDistance = change.position.x - initialOffset.x
-                    totalDragDistance += dragDistance
-
-                    // 判断滑动方向
-                    if (totalDragDistance > 100) {
-                        onSwipe(SwipeDirection.Right)
-                        break
-                    } else if (totalDragDistance < -100) {
-                        onSwipe(SwipeDirection.Left)
-                        break
-                    }
-
-                    change.consume()
-                } while (awaitPointerEvent().changes.any { it.pressed })
-            }
+    // 检查权限
+    val permissionsToRequest = mutableListOf<String>()
+    permissions.forEach {permission->
+        if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(permission)
         }
+    }
+    // 请求权限
+    if (permissionsToRequest.isNotEmpty()) {
+        launch(permissionsToRequest.toTypedArray())
+    } else {
+        Toast.makeText(context, "所有权限已授予", Toast.LENGTH_SHORT).show()
     }
 }
 

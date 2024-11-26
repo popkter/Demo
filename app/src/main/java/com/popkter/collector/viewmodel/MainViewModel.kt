@@ -3,7 +3,6 @@ package com.popkter.collector.viewmodel
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -18,12 +17,15 @@ import com.popkter.collector.SCENE_DESC
 import com.popkter.collector.THINK_DESC
 import com.popkter.collector.entity.Poi
 import com.popkter.collector.model.DaysWeather
-import com.popkter.collector.model.DeepSeekModel
 import com.popkter.collector.model.WeatherModel
 import com.popkter.collector.tools.TTSAudioFocusHelper
 import com.popkter.common.application_ext.ApplicationModule
 import com.popkter.media.MediaPlayerExt
 import com.popkter.network.client.HttpRequestExt
+import com.popkter.voice_assistant.impl.unisound.asr.UniSoundAsrHelper
+import com.popkter.voice_assistant.base.BaseAsrHelper
+import com.popkter.voice_assistant.impl.edge_tts.EdgeTtsHelper
+import com.popkter.voice_assistant.impl.unisound.wake_up.UniSoundWakeUpHelper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.LogLevel
@@ -393,12 +395,39 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         }
     }
 
-    fun generateAudio() {
-        // TODO:
+    private val uniSoundAsrHelper =
+        UniSoundAsrHelper.INSTANCE.initAsr(ApplicationModule.application).apply {
+            registerAsrStatusListener(onResult = {
+                launch {
+                    novelResultFlow.emit(it)
+                }
+            }, onProcessing = {
+                isStart = false
+            }, onStart = {
+                isStart = true
+            }, onError = { error, msg ->
+                isStart = false
+            })
+        }
 
+    private var isStart = false
+
+    private val wakeUpHelper = UniSoundWakeUpHelper.INSTANCE.initWakeUp(ApplicationModule.application)
+
+    fun startWakeUp(){
+        wakeUpHelper.addWakeupWord("小爱同学")
+        wakeUpHelper.startWakeUp()
     }
 
-    fun todo(text: String) {
+    fun todo() {
+        uniSoundAsrHelper.startAsr()
+    }
+
+    fun setDuplexTimeout(timeout: BaseAsrHelper.DuplexTimeout){
+        uniSoundAsrHelper.toggleFullDuplex(timeout)
+    }
+
+    fun generateAudio(text: String) {
         runBlocking {
             val client = HttpClient(CIO) {
                 install(Logging) {
@@ -443,7 +472,7 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         }
     }
 
-    private suspend fun playStreamTts(string: String?) {
+    suspend fun playStreamTts(string: String?) {
         _ttsBuffer.append(string)
         val matchResult = sentenceEndRegex.find(_ttsBuffer)
         if (matchResult != null) {
@@ -455,6 +484,19 @@ class MainViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.
         }
     }
 
+//    private val uniUniSoundTtsManager = UniSoundTtsHelper.INSTANCE.init(ApplicationModule.application)
+
+    private val edgeTtsHelper = EdgeTtsHelper.INSTANCE.initTts(ApplicationModule.application)
+
+    fun playUniSoundTts(text: String){
+//        uniUniSoundTtsManager.updateVoiceType(UniSoundTtsHelper.UniSoundTtsVoice.CHEN_YU_FAST_ORAL)
+        edgeTtsHelper.playTts(text)
+    }
+
+    fun playUniSoundChunkTts(appendText: String) {
+        Log.d(TAG, "playUniSoundChunkTts: $appendText")
+        edgeTtsHelper.playChunkTts(appendText)
+    }
 
     suspend fun requestTts(text: String) {
         Log.e(TAG, "requestTts: $text")
