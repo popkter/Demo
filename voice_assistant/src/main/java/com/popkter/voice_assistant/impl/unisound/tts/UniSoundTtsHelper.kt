@@ -28,7 +28,7 @@ class UniSoundTtsHelper : ITtsEventListener,
     private val _ttsBuffer = StringBuilder()
     private val ttsQueue = ConcurrentLinkedQueue<String>()
 
-    private val sentenceEndRegex = Regex(".*?[，。？！,.?!]")
+    private val sentenceEndRegex = Regex(".*?[，。？！,?!]")
 
     private lateinit var uniSoundTtsEngine: UnisoundTtsEngine
     private var ttsVoice: UniSoundTtsVoice = UniSoundTtsVoice.KIYO_PLUS

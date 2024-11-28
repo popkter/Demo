@@ -8,6 +8,7 @@ import androidx.media3.common.MediaItem
 import com.google.gson.Gson
 import com.popkter.collector.R
 import com.popkter.collector.THINK_DESC
+import com.popkter.collector.domain.WeatherAgent
 import com.popkter.collector.entity.Poi
 import com.popkter.collector.model.DaysWeather
 import com.popkter.common.application_ext.ApplicationModule
@@ -53,7 +54,6 @@ class ChatViewModel : ViewModel() {
 
     private val _text = StringBuffer("你好我是小娜")
 
-
     //文字上屏
     private val novelResultFlow = MutableSharedFlow<String>()
     val novelResult = this.novelResultFlow.asSharedFlow()
@@ -63,7 +63,7 @@ class ChatViewModel : ViewModel() {
     val imageResult = imageResultFlow.asSharedFlow()
 
     //天气上屏
-    private val weatherResultFlow = MutableSharedFlow<List<DaysWeather>?>()
+    private val weatherResultFlow = MutableSharedFlow<List<Pair<Float, String>>?>()
     val weatherResult = weatherResultFlow.asSharedFlow()
 
     //地点上屏
@@ -276,7 +276,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-
     fun playPrevious() {
         mediaPlayer.playPrevious()
     }
@@ -315,7 +314,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-
     fun seekTo(it: Long = -1, isFinish: Boolean = false) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
@@ -338,8 +336,7 @@ class ChatViewModel : ViewModel() {
             novelResultFlow.emit(_text.toString())
             delay(20)
         }
-        delay(10000)
-        resetDataInternal()
+//        delay(10000)
     }
 
     private suspend fun resetDataInternal() {
@@ -354,8 +351,37 @@ class ChatViewModel : ViewModel() {
         poiResult.emit(emptyList())
     }
 
-
     private val wakeupResponsePlayer = MediaPlayer()
+
+
+    fun loadWeather(query: String) {
+        viewModelScope.launch {
+//            loadDemoThink()
+            resetDataInternal()
+            WeatherAgent.loadWeatherData(query,
+                onDaysData = {
+                    launch {
+                        weatherResultFlow.emit(it.map { it.temperature.avg.toFloat() to it.date })
+                    }
+                    Log.e(TAG, "onDaysData: $it")
+                },
+                onHoursData = {
+                    launch {
+                        weatherResultFlow.emit(it.map { it.temp.toFloat() to it.datetime})
+                    }
+                    Log.e(TAG, "onHoursData: ", )
+                },
+                onSummaryUpdate = {
+                    launch {
+                        _text.append(it)
+                        novelResultFlow.emit(_text.toString())
+                        playChunkTts(it, TtsEngineType.EdgeTts)
+                    }
+                    Log.e(TAG, "onSummaryUpdate: ")
+                })
+        }
+    }
+
     private fun wakeupResponse(){
         greeting.random().let {
             wakeupResponsePlayer.reset()
@@ -376,7 +402,6 @@ class ChatViewModel : ViewModel() {
         uniUniSoundTtsHelper.resumeTts()
         edgeTtsHelper.releaseTts()
     }
-
 
     sealed class TtsEngineType {
         data object UniSoundTts : TtsEngineType()

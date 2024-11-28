@@ -93,7 +93,7 @@ private const val TAG = "DeskTopLeft"
 
 private val buttons =
 //    arrayOf("讲笑话", "认场景", "搜地点", "查天气", "播音乐", "MOCK", "TODO", "0", "30", "60")
-    arrayOf("0", "30", "60")
+    arrayOf("查天气","0", "30", "60")
 
 @Composable
 fun DeskTopLeft(modifier: Modifier, viewModel: ChatViewModel) {
@@ -121,7 +121,7 @@ fun DeskTopLeft(modifier: Modifier, viewModel: ChatViewModel) {
 //                            "讲笑话" -> viewModel.loadNovelData()
 //                            "认场景" -> viewModel.loadSceneDemoData()
 //                            "搜地点" -> viewModel.loadPoiDemoData()
-//                            "查天气" -> viewModel.loadWeatherDemoData()
+                            "查天气" -> viewModel.loadWeather("上海市今天晚上的天气怎么样")
 //                            "播音乐" -> viewModel.loadMusicDemoData()
 //                            "MOCK" -> {
 //                                scope.launch {
@@ -290,9 +290,7 @@ fun DataResultView(
 
 
                 listWeather?.let {
-                    LineChart(modifier,
-                        listWeather!!.map { it.temp.toFloat() },
-                        listWeather!!.map { formatTimestamp(it.datetimeEpoch) })
+                    LineChart(modifier,listWeather!!.map { it.first },listWeather!!.map { it.second })
                 }
 
                 if (canDisplayMusicCard) {
@@ -413,7 +411,8 @@ fun LottieAnimationView(modifier: Modifier = Modifier, resource: String) {
 
 @Composable
 fun LineChart(
-    modifier: Modifier = Modifier, temperatures: List<Float>, // 温度数据
+    modifier: Modifier = Modifier,
+    temperatures: List<Float>, // 温度数据
     timestamps: List<String> // 时间数据
 ) {
     val maxTemperature = temperatures.maxOrNull() ?: 0f
@@ -451,28 +450,46 @@ fun LineChart(
             Color.White, Offset(0f, height - 20), Offset(width, height - 20), strokeWidth = 1f
         ) // X轴
 
+        var hasDrawMax = false
+        var hasDrawMin = false
+
+
         // 绘制时间戳和温度
         for (i in temperatures.indices) {
             val xPosition = i * xInterval - 20f
             val yPosition = lineHeight - (temperatures[i] - minTemperature) * yScale
 
-            // 绘制温度
-            drawContext.canvas.nativeCanvas.drawText("${temperatures[i]}°C",
-                xPosition,
-                yPosition - 10, // 温度值在点上方显示
-                TextPaint().apply {
-                    color = android.graphics.Color.WHITE
-                    textSize = 24F
-                })
+            //绘制起止点和极值
+            if ((temperatures[i] == temperatures.max() && !hasDrawMax) || (temperatures[i] == temperatures.min() && !hasDrawMin) || i == 0 || i == temperatures.size - 1) {
+                if (temperatures[i] == temperatures.min()) {
+                    hasDrawMin = true
+                }
+                if (temperatures[i] == temperatures.max()) {
+                    hasDrawMax = true
+                }
+                // 绘制温度
+                drawContext.canvas.nativeCanvas.drawText("${temperatures[i]}°C",
+                    xPosition,
+                    yPosition - 10, // 温度值在点上方显示
+                    TextPaint().apply {
+                        color = android.graphics.Color.WHITE
+                        textSize = 24F
+                    })
+            }
 
-            // 绘制时间戳
-            drawContext.canvas.nativeCanvas.drawText(timestamps[i],
-                xPosition,
-                height + 20, // 调整文本垂直位置
-                TextPaint().apply {
-                    color = android.graphics.Color.WHITE
-                    textSize = 26F
-                })
+            //绘制起止点
+            if (i == 0 || i == temperatures.size - 1) {
+                // 绘制时间戳
+                drawContext.canvas.nativeCanvas.drawText(timestamps[i],
+                    xPosition,
+                    height + 20, // 调整文本垂直位置
+                    TextPaint().apply {
+                        color = android.graphics.Color.WHITE
+                        textSize = 26F
+                    })
+            }
+
+
         }
     }
 }

@@ -30,7 +30,7 @@ class EdgeTtsHelper : BaseTtsHelper(),
 
     private val _ttsBuffer = StringBuffer()
 
-    private val sentenceEndRegex = Regex(".*?[，。？！,.?!]")
+    private val sentenceEndRegex = Regex(".*?[，。？！,?!]")
 
     private lateinit var ttsPlayer: ExoPlayer
 
