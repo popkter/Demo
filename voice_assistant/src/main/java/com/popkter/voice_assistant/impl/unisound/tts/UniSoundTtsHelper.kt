@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.popkter.voice_assistant.BuildConfig
 import com.popkter.voice_assistant.base.BaseTtsHelper
+import com.unisound.sdk.tts.TtsAudioFormat
 import com.unisound.sdk.tts.TtsEvent
 import com.unisound.sdk.tts.TtsOption
 import com.unisound.sdk.tts.TtsPlayOption
@@ -12,6 +13,9 @@ import com.unisound.sdk.tts.impl.ITtsEventListener
 import com.unisound.sdk.tts.param.UnisoundTtsMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
@@ -31,17 +35,21 @@ class UniSoundTtsHelper : ITtsEventListener,
     private val sentenceEndRegex = Regex(".*?[，。？！,?!]")
 
     private lateinit var uniSoundTtsEngine: UnisoundTtsEngine
-    private var ttsVoice: UniSoundTtsVoice = UniSoundTtsVoice.KIYO_PLUS
+    private var ttsVoice: UniSoundTtsVoice = UniSoundTtsVoice.CHEN_YU_HAPPY_LLM
 
     override fun initTts(context: Context): UniSoundTtsHelper {
         uniSoundTtsEngine = UnisoundTtsEngine.Builder()
             .setAppKey(BuildConfig.UNI_SOUND_ASR_TTS_APP_KEY)
             .setAppSecret(BuildConfig.UNI_SOUND_ASR_TTS_SECRET_KEY)
             .setDeviceUUID(BuildConfig.UNI_SOUND_DEVICE_ID)
+            //设置采样率
+            .setOption(TtsOption.TTS_OPTION_SAMPLE_RATE, 22000)
+            .setOption(TtsOption.TTS_OPTION_PING_MAX_TIMES,10)
+            .setOption(TtsOption.TTS_OPTION_AUDIO_FORMAT,TtsAudioFormat.AUDIO_FORMAT_PCM)
             .build(context)
 
         uniSoundTtsEngine.apply {
-            setTtsOption(TtsOption.TTS_OPTION_PRINT_JNI_LOG, true)
+            setTtsOption(TtsOption.TTS_OPTION_PRINT_JNI_LOG, false)
             setTtsOption(TtsOption.TTS_OPTION_INIT_TR_ADDRESS, "poc-ai-tr-ws.hivoice.cn:443")
             setTtsOption(TtsOption.TTS_OPTION_VOICE_NAME, ttsVoice.name)
             //设置速度
@@ -52,8 +60,6 @@ class UniSoundTtsHelper : ITtsEventListener,
             setTtsOption(TtsOption.TTS_OPTION_BRIGHT, 50)
             //设置音高
             setTtsOption(TtsOption.TTS_OPTION_PITCH, 50)
-            //设置采样率
-            setTtsOption(TtsOption.TTS_OPTION_SAMPLE_RATE, 16000)
             //设计监听
             setTtsEventListener(this@UniSoundTtsHelper)
             //在线模式
@@ -64,9 +70,10 @@ class UniSoundTtsHelper : ITtsEventListener,
     }
 
     override fun onTtsEnd() {
-        super.onTtsEnd()
-        if (ttsQueue.isNotEmpty()){
+        if (ttsQueue.isNotEmpty()) {
             ttsQueue.poll()?.let { playTts(it) }
+        } else {
+            super.onTtsEnd()
         }
     }
 
@@ -74,21 +81,28 @@ class UniSoundTtsHelper : ITtsEventListener,
         uniSoundTtsEngine.playTts(text)
     }
 
+    private val mutex = Mutex(false)
+
     override fun playChunkTts(appendText: String) {
         Log.e(TAG, "playChunkTts: appendText= $appendText")
-        _ttsBuffer.append(appendText)
-        val matchResult = sentenceEndRegex.find(_ttsBuffer)
-        if (matchResult != null) {
-            // 取出完整的句子
-            val sentence = matchResult.value.trim()
-            _ttsBuffer.delete(0, matchResult.range.last + 1)
-            Log.e(TAG, "playChunkTts: isPlaying= $isPlaying")
-            if (isPlaying){
-                ttsQueue.add(sentence)
-                return
+        launch {
+            mutex.withLock {
+                _ttsBuffer.append(appendText)
+                val matchResult = sentenceEndRegex.find(_ttsBuffer)
+                if (matchResult != null) {
+                    // 取出完整的句子
+                    val sentence = matchResult.value.trim()
+                    _ttsBuffer.delete(0, matchResult.range.last + 1)
+                    Log.e(TAG, "playChunkTts: isPlaying= $isPlaying")
+                    if (isPlaying) {
+                        ttsQueue.add(sentence)
+                        return@launch
+                    }
+                    uniSoundTtsEngine.playTts(sentence, TtsPlayOption())
+                }
             }
-            uniSoundTtsEngine.playTts(sentence, TtsPlayOption())
         }
+
     }
 
     fun playBuffer(buffer: ByteArray) {
@@ -124,7 +138,7 @@ class UniSoundTtsHelper : ITtsEventListener,
     override fun onEvent(event: Int, msg: String?) {
         Log.d(TAG, "onEvent: $event $msg")
         when (event) {
-            TtsEvent.TTS_EVENT_PLAY_START -> {
+            TtsEvent.TTS_EVENT_START -> {
                 onTtsStart()
             }
 
@@ -161,12 +175,12 @@ class UniSoundTtsHelper : ITtsEventListener,
 
     fun updateVoiceType(name: String) {
         name.takeIf { ttsVoice.name != it }?.let {
+            ttsVoice.name = it
             uniSoundTtsEngine.setTtsOption(TtsOption.TTS_OPTION_VOICE_NAME, name)
         }
     }
 
-    sealed class UniSoundTtsVoice(val name: String) {
-        data object CHEN_YU_LLM : UniSoundTtsVoice("chenyu-llm")
+    sealed class UniSoundTtsVoice(var name: String) {
         data object CHEN_YU_ORAL : UniSoundTtsVoice("chenyu-oral")
         data object CHEN_YU_DEPRESSED_ORAL : UniSoundTtsVoice("chenyu-depressed-oral")
         data object CHEN_YU_FAST_ORAL : UniSoundTtsVoice("chenyu-fast-oral")
@@ -176,6 +190,16 @@ class UniSoundTtsHelper : ITtsEventListener,
         data object CHEN_YU_WHISPER_ORAL : UniSoundTtsVoice("chenyu-whisper-oral")
         data object CHEN_YU_ANGRY_ORAL : UniSoundTtsVoice("chenyu-angry-oral")
         data object KIYO_PLUS : UniSoundTtsVoice("kiyo-plus")
+
+        data object CHEN_YU_LLM : UniSoundTtsVoice("chenyu-llm")
+        data object CHEN_YU_HAPPY_LLM : UniSoundTtsVoice("chenyu-happy-llm")
+        data object CHEN_YU_WHISPER_LLM : UniSoundTtsVoice("chenyu-whisper-llm")
+        data object CHEN_YU_FAST_LLM : UniSoundTtsVoice("chenyu-fast-llm")
+        data object CHEN_YU_SLOW_LLM : UniSoundTtsVoice("chenyu-slow-llm")
+        data object CHEN_YU_DEPRESSED_LLM : UniSoundTtsVoice("chenyu-depressed-llm")
+        data object CHEN_YU_ANGRY_LLM : UniSoundTtsVoice("chenyu-angry-llm")
+        data object CHEN_YU_OLD_LLM : UniSoundTtsVoice("chenyu-old-llm")
+        data object CHEN_YU_ROBOT_LLM : UniSoundTtsVoice("chenyu-robot-llm")
     }
 
 }

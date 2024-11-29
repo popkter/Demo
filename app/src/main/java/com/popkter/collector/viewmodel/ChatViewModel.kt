@@ -228,7 +228,7 @@ class ChatViewModel : ViewModel() {
             }
 
             TtsEngineType.EdgeTts -> {
-//                edgeTtsHelper.playTts(text)
+                edgeTtsHelper.updateVoiceType(name)
             }
         }
     }
@@ -236,7 +236,6 @@ class ChatViewModel : ViewModel() {
     fun playTts(text: String, engine: TtsEngineType = TtsEngineType.UniSoundTts) {
         when (engine) {
             TtsEngineType.UniSoundTts -> {
-                uniUniSoundTtsHelper.updateVoiceType(UniSoundTtsHelper.UniSoundTtsVoice.CHEN_YU_ORAL)
                 uniUniSoundTtsHelper.playTts(text)
             }
 
@@ -249,7 +248,6 @@ class ChatViewModel : ViewModel() {
     fun playChunkTts(appendText: String, engine: TtsEngineType = TtsEngineType.UniSoundTts) {
         when (engine) {
             TtsEngineType.UniSoundTts -> {
-                uniUniSoundTtsHelper.updateVoiceType(UniSoundTtsHelper.UniSoundTtsVoice.CHEN_YU_FAST_ORAL)
                 uniUniSoundTtsHelper.playChunkTts(appendText)
             }
 
@@ -375,7 +373,7 @@ class ChatViewModel : ViewModel() {
                     launch {
                         _text.append(it)
                         novelResultFlow.emit(_text.toString())
-                        playChunkTts(it, TtsEngineType.EdgeTts)
+                        playChunkTts(it, TtsEngineType.UniSoundTts)
                     }
                     Log.e(TAG, "onSummaryUpdate: ")
                 })

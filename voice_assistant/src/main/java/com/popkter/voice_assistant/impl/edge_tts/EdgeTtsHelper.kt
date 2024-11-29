@@ -34,6 +34,8 @@ class EdgeTtsHelper : BaseTtsHelper(),
 
     private lateinit var ttsPlayer: ExoPlayer
 
+    private var ttsVoice: EdgeTtsVoice = EdgeTtsVoice.XIAO_XIAO
+
     override fun initTts(context: Context): EdgeTtsHelper {
         ttsPlayer = ExoPlayer.Builder(context).build().apply {
             playWhenReady = true
@@ -141,15 +143,42 @@ class EdgeTtsHelper : BaseTtsHelper(),
         ttsPlayer.release()
     }
 
+    fun updateVoiceType(voice: EdgeTtsVoice) {
+        ttsVoice = voice
+    }
+
+    fun updateVoiceType(name: String) {
+        ttsVoice.name = name
+    }
+
+
     private suspend fun requestTts(text: String) {
         Log.e(TAG, "requestTts: $text")
         coroutineScope {
             withContext(Dispatchers.IO) {
                 val query = URLEncoder.encode(text, "UTF-8")
                 withContext(Dispatchers.Main) {
-                    ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query&voice=Female-XiaoxiaoNeural&rate=30&volume=0"))
+                    ttsPlayer.addMediaItem(MediaItem.fromUri("http://124.221.124.238:10010/stream_audio?text=$query&voice=${ttsVoice.name}&rate=30&volume=0"))
                 }
             }
         }
+    }
+
+    sealed class EdgeTtsVoice(var name: String) {
+        data object XIAO_XIAO : EdgeTtsVoice("zh-CN-XiaoxiaoNeural")
+        data object XIAO_YI : EdgeTtsVoice("zh-CN-XiaoyiNeural")
+        data object YUN_JIAN : EdgeTtsVoice("zh-CN-YunjianNeural")
+        data object YUN_XI : EdgeTtsVoice("zh-CN-YunxiNeural")
+        data object YUN_XIA : EdgeTtsVoice("zh-CN-YunxiaNeural")
+        data object YUN_YANG : EdgeTtsVoice("zh-CN-YunyangNeural")
+        data object LIAO_NING : EdgeTtsVoice("zh-CN-liaoning-XiaobeiNeural")
+        data object SHA_AN_XI : EdgeTtsVoice("zh-CN-shaanxi-XiaoniNeural")
+
+        data object HUI_GAAI : EdgeTtsVoice("zh-HK-HiuGaaiNeural")
+        data object HIU_MAAM : EdgeTtsVoice("zh-HK-HiuMaanNeural")
+        data object WAN_LUNG : EdgeTtsVoice("zh-HK-WanLungNeural")
+        data object HSIAO_CHEN : EdgeTtsVoice("zh-TW-HsiaoChenNeural")
+        data object HSIAO_YU : EdgeTtsVoice("zh-TW-HsiaoYuNeural")
+        data object YUN_JEH : EdgeTtsVoice("zh-TW-YunJheNeural")
     }
 }
