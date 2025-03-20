@@ -1,0 +1,47 @@
+<!-- main_split_config.xml -->
+
+<resources
+    xmlns:window="http://schemas.android.com/apk/res-auto">
+
+    <!-- Define a split for the named activities. -->
+    <SplitPairRule
+        window:splitRatio="0.33"
+        window:splitLayoutDirection="locale"
+        window:splitMinWidthDp="840"
+        window:splitMaxAspectRatioInPortrait="alwaysAllow"
+        window:finishPrimaryWithSecondary="never"
+        window:finishSecondaryWithPrimary="always"
+        window:clearTop="false">
+        <SplitPairFilter
+            window:primaryActivityName=".MainActivity"
+            window:secondaryActivityName="com.popkter.jetpackcomposegallary.MainActivity2"/>
+
+<!--        window:secondaryActivityName="compose.popkter.robotface.MainActivity"/>-->
+
+
+
+    </SplitPairRule>
+
+    <!-- Specify a placeholder for the secondary container when content is
+         not available. -->
+<!--    <SplitPlaceholderRule-->
+<!--        window:placeholderActivityName=".PlaceholderActivity"-->
+<!--        window:splitRatio="0.33"-->
+<!--        window:splitLayoutDirection="locale"-->
+<!--        window:splitMinWidthDp="840"-->
+<!--        window:splitMaxAspectRatioInPortrait="alwaysAllow"-->
+<!--        window:stickyPlaceholder="false">-->
+<!--        <ActivityFilter-->
+<!--            window:activityName=".MainActivity"/>-->
+<!--    </SplitPlaceholderRule>-->
+
+    <!-- Define activities that should never be part of a split. Note: Takes
+         precedence over other split rules for the activity named in the
+         rule. -->
+<!--    <ActivityRule-->
+<!--        window:alwaysExpand="true">-->
+<!--        <ActivityFilter-->
+<!--            window:activityName=".ExpandedActivity"/>-->
+<!--    </ActivityRule>-->
+
+</resources>

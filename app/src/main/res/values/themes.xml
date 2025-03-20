@@ -5,7 +5,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.JetPackComposeGallary" parent="Base.Theme.JetPackComposeGallary" >
-<!--        <item name="android:windowFullscreen">true</item>-->
+    <style name="Theme.JetPackComposeGallary" parent="Base.Theme.JetPackComposeGallary">
+        <!--        <item name="android:windowFullscreen">true</item>-->
     </style>
 </resources>
